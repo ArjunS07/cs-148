@@ -1,0 +1,384 @@
+\documentclass{article}
+\usepackage[a4paper, margin=0.5in]{geometry}
+
+% Document Information
+\title{CS 148a Problem Set 1}
+\date{}
+
+% ================ Core Packages ================
+% Math and Symbol Packages
+\usepackage{amsmath, amsfonts, amssymb, amstext, amscd, amsthm}
+\usepackage{centernot}
+\allowdisplaybreaks
+% Document Structure and Formatting
+\usepackage{bookmark}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{blindtext}
+\usepackage{subfiles}
+\usepackage{xparse}
+\usepackage[skip=6pt plus1pt, indent=0pt]{parskip}
+\usepackage{pdfpages}
+\usepackage{float}
+
+% ================ Theorem Environments ================
+% Color and Box Packages
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\tcbuselibrary{theorems}
+\usepackage{mdframed}
+\usepackage{environ}
+
+% Color Definitions
+\definecolor{definitiongray}{RGB}{240,240,240}
+\definecolor{definitionborder}{RGB}{120,120,120}
+\definecolor{resultblue}{RGB}{240,245,255}
+\definecolor{resultborder}{RGB}{68,138,255}
+\definecolor{theoremred}{RGB}{255,240,240}
+\definecolor{theoremborder}{RGB}{255,102,102}
+
+% Box Styling
+\tcbset{
+    enhanced,
+    sharp corners,
+    boxrule=0.4pt,
+    top=8pt,
+    bottom=8pt,
+    left=8pt,
+    right=8pt,
+    fonttitle=\bfseries,
+    coltitle=black,
+    colback=white,
+    colframe=black,
+    attach boxed title to top left={xshift=0.5cm, yshift*=-\tcboxedtitleheight/2},
+    boxed title style={
+        sharp corners,
+        size=small,
+        colback=white,
+        colframe=black
+    }
+}
+
+% Theorem-like Environments
+% Create theorem counter
+\newcounter{theorem}[section]
+\renewcommand{\thetheorem}{\thesection.\arabic{theorem}}
+
+% Box Definitions with fixed numbering
+\newtcolorbox{definitionbox}[2][]{
+    title={Definition \thetheorem: #2},
+    colback=definitiongray,
+    colframe=definitionborder,
+    #1
+}
+
+\newtcolorbox{resultbox}[2][]{
+    title={Result \thetheorem: #2},
+    colback=resultblue,
+    colframe=resultborder,
+    #1
+}
+
+\newtcolorbox{theorembox}[2][]{
+    title={Theorem \thetheorem: #2},
+    colback=theoremred,
+    colframe=theoremborder,
+    #1
+}
+
+% Environment Definitions
+\newenvironment{definition}[2][]
+    {\refstepcounter{theorem}\begin{definitionbox}[#1]{#2}}
+    {\end{definitionbox}}
+
+\newenvironment{result}[1][]
+    {\refstepcounter{theorem}\begin{resultbox}{#1}}
+    {\end{resultbox}}
+
+\newenvironment{theorem}[1][]
+    {\refstepcounter{theorem}\begin{theorembox}{#1}}
+    {\end{theorembox}}
+
+% Package for more flexible spacing control
+\usepackage{mdframed}
+\usepackage{environ}
+
+% Define a very light green for the background
+\definecolor{propositionbg}{RGB}{245, 250, 245}    % Very light green background
+\definecolor{propositionframe}{RGB}{220, 235, 220}  % Slightly darker green for frame
+
+% Style for practice propositions
+\mdfdefinestyle{propositionstyle}{
+    linewidth=0.5pt,          
+    topline=true,             
+    bottomline=true,
+    leftline=false,
+    rightline=false,
+    backgroundcolor=propositionbg,    
+    linecolor=propositionframe,
+    innertopmargin=10pt,      
+    innerbottommargin=10pt,
+    innerleftmargin=12pt,     
+    innerrightmargin=12pt,
+    skipabove=1.2em,          
+    skipbelow=1.2em
+}
+
+% Counter for propositions
+\newcounter{proposition}[section]
+\renewcommand{\theproposition}{\thesection.\arabic{proposition}}
+
+% New proposition environment
+\NewEnviron{proposition}[3]{
+    \refstepcounter{proposition}
+    \smallskip
+    \begin{mdframed}[style=propositionstyle]
+        \textbf{#1}. \textit{#2}
+    \vspace{-0.25cm}
+    \begin{proof}
+        #3
+    \end{proof}
+    \end{mdframed}
+}
+
+% ================ Custom Commands ================
+% Math Commands
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\cnot}{\centernot}
+\newcommand{\notimplies}{\cnot\implies}
+\newcommand{\llim}{\lim \limits}
+\newcommand{\fin}[2]{~\forall #1 \in #2}
+\newcommand{\st}{\text{ s.t. }}
+\newcommand{\spn}{\text{span}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\by}{\mathbf{y}}
+\newenvironment{amatrix}[1]{%
+  \left(\begin{array}{@{}*{#1}{c}|c@{}}
+}{%
+  \end{array}\right)
+}
+
+% partial derivatives
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\pdd}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\pddm}[3]{\frac{\partial^2 #1}{\partial #2 \partial #3}}
+
+\newcommand{\argmin}{\arg\min}
+\newcommand{\argmax}{\arg\max}
+
+% ================ List Formatting ================
+\renewcommand{\labelenumii}{\arabic{enumii}.}
+\renewcommand{\labelenumiii}{\arabic{enumiii}}
+
+% ================ Reference Formatting ================
+\newcommand{\resultautorefname}{result}
+\begin{document}
+
+\maketitle    
+
+\newpage
+\section*{Question 1}
+\begin{enumerate}
+    \item[(a)] \begin{align*}
+        L &= w_3 s\\
+        \implies \frac{\partial L}{\partial w_3} &= s\\
+        &= 3.3 
+    \end{align*}
+    \item[(b)] \begin{align*}
+        \pd{L}{w_1} &= \pd{L}{s} \pd{s}{w_1}\\
+        &= w_3 (1) = w_3\\
+        &= 5.7
+    \end{align*}
+    By symmetry, we also get $$\pd{L}{w_2} = w_3 = 5.7$$.
+    \item[(c)] \begin{align*}
+        w_1 &= w_1 - \eta \pd{L}{w_1}\\
+        &= 1 - 0.01 (5.7)\\
+        &= 0.943\\
+        w_2 &= w_2 - \eta \pd{L}{w_2}\\
+        &= 2.3 - 0.01 (5.7)\\
+        &= 2.243\\
+        w_3 &= w_3 - \eta \pd{L}{w_3}\\
+        &= 5.7 - 0.01 (3.3)\\
+        &= 5.667
+    \end{align*}
+    \item[(d)] \begin{align*}
+        L &= (w_1 + w_2) \cdot w_3\\
+        &= (0.943 + 2.243) \cdot 5.667\\
+        &= 18.055
+    \end{align*}
+
+    The loss decreased. This is expected, since the gradient descent update we performed moves each parameter in the direction opposite to the gradient of the loss with respect to that parameter, which locally decreases the loss. 
+\end{enumerate}
+
+\newpage
+\section*{Question 2}
+
+\newpage
+\section*{Question 3}
+
+
+\newpage
+\section*{Question 4}
+\begin{enumerate}
+    \item \begin{proof}
+        \begin{align*}
+            \text{tanh}(x) + 1 &= \frac{e^x - e^{-x}}{e^x + e^{-x}} + 1\\
+            &= \frac{e^x - e^{-x} + e^x + e^{-x}}{e^x + e^{-x}}\\
+            &= \frac{2e^x}{e^x + e^{-x}}\\
+            &= 2 \frac{1}{1 + e^{-2x}}
+        \end{align*}
+        But
+        \begin{align*}
+            2 \sigma(2x) &= 2 \frac{1}{1 + e^{-(2x)}}\\
+        \end{align*}
+        So $\text{tanh}(x) + 1 = 2 \frac{1}{1 + e^{-2x}} = 2 \sigma(2x)$.
+    \end{proof}
+    \item \begin{proof}
+        In the previous part, we showed that tanh and $\sigma$ were equivalent up to affine transformations. These can be expressed using the weights and biases of the following layer in a multi-layer perceptron.
+
+        We show specifically how this equivalency holds in both possible cases.
+
+        \begin{itemize}
+            \item Expressing a sigmoid neuron with tanh: from the previous proof, $$\sigma(z) = \frac{1}{2} \left[\text{tanh}\left(\frac{z}{2}\right) + 1 \right].$$
+            So, if the input to the neuron is $\bw^T \bx + b$, then \begin{align*}
+                \sigma(\bw^T \bx + b) &= \frac{1}{2} \left[ \tanh \left( \frac{\bw^T \bx + b}{2} \right) + 1 \right]
+            \end{align*}
+            The RHS can be expressed with a $\tanh$ neuron with weights $\bw' = \frac{1}{2}\bw^T$ on the inputs and a bias $b' = \frac{b}{2}$. This value can then be transformed in the following layer of the multi-layer perceptron with weight $0.5$ associated with it every time it is used as an input to a node, and an additional bias of $0.5$.
+            
+            \item Expressing a tanh neuron with sigmoid: from the previous proof, $$
+            \tanh(z) = 2 \sigma(2z) - 1
+            $$
+            So if the input is $\bw^T \bx + b$, then \begin{align*}
+                \tanh(\bw^T \bx + b) &= 2 \sigma(2\bw^T + 2b) - 1
+            \end{align*}
+            This can be expressed with a $\sigma$ neuron with weights $\bw' = 2 \bw$ and a bias $b' = 2b$. In the next layer, the weights associated with this value would be set to 2, followed by a bias of -1 to create equivalency.
+        \end{itemize}
+        Therefore, any network using one activation can be converted layer-by-layer into a network using the other activation by tuning the weights and biases.
+
+        Note that this requires there to be at least two layers in the network -- a single-neuron model would not be sufficient.
+    \end{proof}
+    \item \begin{proof}
+        Let the dataset be $\mathcal{D} = {(x_i, \by_i)}_{i=1}^N$, with $\by_{i_j} = 1 \iff x_i \in C_j$ (i.e., the labels are one-hot encoded). Let $|C|$ be the number of classes. 
+
+        Let the output of the network for $\bx_i$ be $\hat{\by}_i$, a vector in which the $j$-th value corresponds to the probability of $\bx$ belonging to class $j$.
+
+        Define the model likelihood $P(\hat{\by} = \by_i | \bx, \theta)$ as the probability that the output of the model $\hat{\by}$, using parameters $\theta$, is correct on input $x$. Then, assuming independence of predictions, the likelihood of the model on the data will be,
+        \begin{align*}
+            &\prod_{i=1}^N P(\hat{\by}_i = \by_i| \bx_i)\\
+        \end{align*}
+
+        So the log-likelihood will be:
+        \begin{align*}
+            \mathcal{L_\text{log}}(\theta) &= \sum\limits_{i=1}^N \log p (\hat{\by}_i = \by_i | \bx_i, \theta)\\
+            &= \sum\limits_{i=1}^N  \by_i \cdot \log (\hat{\by}_i) \tag{use the dot product with the one-hot encoded true vector to zero out every entry except for the one at the index of the correct label}\\
+            &= \sum\limits_{i=1}^N \sum\limits_{j=1}^{|C|} y_{i_j} \cdot \log(\hat{y}_{i_j})
+        \end{align*}
+
+        So \begin{align*}
+            \argmax_\bw \sum\limits_{i=1}^N \sum\limits_{j=1}^{|C|} \by_{i_j} \cdot \log(\hat{\by}_{i_j}) &= \argmin_\bw \left[ -\sum\limits_{i=1}^N \sum\limits_{j=1}^{|C|} y_{i_j} \cdot \log(\hat{y}_{i_j})\right]
+        \end{align*}
+
+        But cross-entropy loss is defined as $$H(\by, \hat{\by}) = -\sum\limits_{i=1}^N \sum\limits_{k=1}^{|C|} y_{i_k} \cdot \log(\hat{y}_{i_k})$$.
+        
+        So maximizing log likelihood is equivalent to minimizing cross-entropy loss.
+
+    \end{proof}
+
+    \item \begin{proof}
+    In Adam, we normalize the gradient by the square root of its variance to ensure constant scale for all parameter updates, such that \begin{align*}
+        w_{t+1, i} &= w_{t, i} - \eta \frac{
+            \bar{s}_{t+1, i}
+        }{
+            \sqrt{\bar{r}_{t+1, i} + \delta}
+        }
+    \end{align*}
+    where
+\begin{gather*}
+    g_{t, i} = \pd{\mathcal{L}(w_{t, i})}{w_i}\\[1em]
+    \begin{aligned}
+        s_{t+1, i} &= \beta_1 s_{t, i} + (1 - \beta_1) g_t &\qquad
+        \bar{s}_{t+1, i} &= \frac{s_{t+1, i}}{1 - \beta_1^{t+1}}
+    \end{aligned}\tag{1}\\
+    \begin{aligned}
+        r_{t+1, i} &= \beta_2 r_{t, i} + (1 - \beta_2) g_{t,i}^2 &\qquad 
+        \bar{r}_{t+1, i} &= \frac{r_{t+1, i}}{1 - \beta_2^{t+1}}
+    \end{aligned}\tag{2}
+\end{gather*}
+
+We require that, in expectation, the factor $s_{t+1, i}$ is equal to the mean of the gradient for that parameter $\mu = \mathbb{E}[g_i]$.
+
+\begin{align*}
+    s_{t+1, i} &= (1 - \beta_1) \sum\limits_{k=1}^t \beta_1^{t-k} g_{k, i} \tag{unrolling the recurrence}\\
+    \implies \mathbb{E}[s_{t+1, i}] &= (1 - \beta_1) \sum\limits_{k=1}^t \beta_1^{t - k} \mathbb{E}[g_k]\\
+    &= (1 - \beta_1) \mu \sum\limits_{k=1}^t \beta_1^{t - k} \tag{letting $\mu = \mathbb{E}[g_k]$}\\
+    &= \mu (1 - \beta_1) (1) \frac{1 - \beta_1tn}{1 - \beta_1} \tag{sum of geometric series}\\
+    &= \mu (1 - \beta_1^t)
+\end{align*}
+So to correct this, we use $$\bar{s}_{t+1, i} = \frac{s_{t+1, i}}{1 - \beta_1^t}$$.
+
+Similarly, we require $r_{t+1, i}$ in expectation to be equal to the variance $\mathbb{E}[g_i^2]$. \begin{align*}
+     r_{t+1, i} &= (1 - \beta_2) \sum\limits_{k=1}^{t} \beta_2^{t - k} g_{t, i}^2\\
+     \implies \mathbb{E}[r_{t+1, i}] &= (1 - \beta_2) \sum\limits_{k=1}^{t} \beta_2^{t - k} \mathbb{E}[g_{t, i}^2]\\
+     &= \mathbb{E}[g_{t, i}^2] (1 - \beta_2) (1) \frac{1 - \beta_2^t}{1 - \beta_2}\\
+     &= (1 - \beta_2^t) \mathbb{E}[g_{t, i}^2] 
+\end{align*}
+So we need to apply the same correction
+\end{proof}
+\end{enumerate}
+
+
+\newpage
+\section*{Question 5}
+
+
+\newpage
+\section*{Question 6}
+\begin{enumerate}
+    \item We show that adding layers to a neural network without non-linear activation functions does not increase its expressive power.
+    
+    Let $\bz_1 = W_1 \bz_0 + \mathbf{b}_1$.
+    
+    Then $\bz_2 = W_2 \bz_1 + \mathbf{b_2} = W_2(W_1 \bz_0 + \mathbf{b_1}) + \mathbf{b_2}  = W_2W_1\bz_0 + (W_2 \mathbf{b_1} + \mathbf{b_2})$. But if we define $W' = W_2 W_1$ and $\mathbb{b}' = W_2 \mathbf{b_1} + \mathbf{b_2}$, then we can express the value of the output of this second linear layer $z_2$ as a single linear transformation $W' \bz + \mathbb{b}'$. So adding additional layers does not increase expressive power, since each additional layer only represents an affine transformation. 
+
+    By induction, we can show that any $D$-layer network without nonlinearities can be collapsed down to one linear layer.
+ 
+    \item Suppose $x \in \mathbb{R}^10$, $W_1 \in \mathbb{R}^{2 \times 10}$, $W_2 \in \mathbb{R}^{10 \times 2}$. 
+    
+    Then $W' = W_2 W_1 \in \mathbb{R}^{10 \times 10}$, but $\text{rank}{W'} \leq \text{rank} (W_1)$ since $\text{im} W' = \{W_2 \by \mid \by \in \text{im} W_1\}$. 
+
+    Similarly, $\text{rank}{W'} \leq \text{rank} W_2$ since $\text{im} W' = \{W_2 (W_1 \bx) \mid \bx \in \mathbb{R}^{10}\} \subseteq \text{im}(W_2)$. 
+
+    This implies $\text{rank}{W'} \leq \text{min} (\text{rank}(W_1), \text{rank}(W_2)) = 2$.
+
+    So applying $W_2 W_1 \bx$ maps from $\mathbb{R}^{10} \rightarrow \mathbb{R}^{10}$ but collapses down $x$ to a 2-dimensional latent subspace, while a single layer $W_l \in \mathbb{R}^{10 \times 10}$ might have had more expressive power.
+
+    \item For AND, let $\bw = [1, 1]$ and $ b = -1.5$. For OR, let $\bw = [1, 1]$ and $b = -0.5$. In both cases make the output $\text{sign}(\bw^T \bx + b)$.
+    
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            Input $\bx$ & AND layer output & OR layer output\\ \hline 
+            $(0, 0)$ & $\text{sign}(-1.5) = -1$ & $\text{sign}(-0.5) = -1$ \\
+            $(0, 1)$ or $(1, 0)$ & $\text{sign}(-0.5) = -1$ & $\text{sign}(0.5) = 1$ \\
+            $(1, 1)$ & $\text{sign}(0.5) =  1$ & $\text{sign}(1.5) = 1$ \\
+        \end{tabular}
+    \end{table}
+
+
+    XOR maps $(0, 1)$ and $(1, 0)$ to 1, and $(0, 0)$ as well as $(1, 1)$ to 0. In $\mathbb{R}^2$, these lie on a square, with positive examples on a line connecting one set of opposite corners of the square, and the negative examples on another line connecting the other two corners of the square. 
+    
+    A single layer perceptron computes $\bw^T \bx + b$, which is a hyperplane in $D$-dimensional space; in 2-dimensional space, a single layer defines a line. For the perceptron to correctly classify XOR, all positive examples must lie on one side of this line and all negative examples on the other side of the line. However, no such line exists. Any line separating $(0,0)$ from $(0,1)$ and $(1,0)$ must also separate $(0,0)$ from $(1,1)$, but $(0,0)$ and $(1,1)$ belong to the same class. 
+
+    \item In the base case,
+ 
+\end{enumerate}
+
+
+\end{document}
