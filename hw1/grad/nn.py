@@ -41,21 +41,38 @@ class Perceptron(Module):
         self.w: list[Value] = (
             None  # TODO: initialize weights using random.uniform(-1, 1) (length N)
         )
-        self.b: Value = None  # TODO: initialize bias as 0 (single number)
+        for _ in range(N):
+            self.w.append(Value(random.uniform(-1, 1)))
+        self.b: Value = Value(0)  # TODO: initialize bias as 0 (single number)
         self.activation_fn = activation_fn
 
     def signal(self, x: list[Value]) -> Value:
-        pass
+        s = self.b
+        for i in range(self.N):
+            s = s + x[i] * self.w[i]
+        return s
 
     def activate(self, s: Value) -> Value:
-        # TODO: given the signal s, activate and return it
-        # you'll have to write some if statements to conditionally use f_relu, f_sigmoid, or f_tanh
-        pass
+        if self.activation_fn == "relu":
+            f_relu = lambda x: x if x.data > 0 else Value(0)
+            return f_relu(s)
+        elif self.activation_fn == "sigmoid":
+            f_sigmoid = lambda x: 1 / (1 + (-x).exp())
+            return f_sigmoid(s)
+        elif self.activation_fn == "tanh":
+            f_tanh = lambda x: (x.exp() - (-x).exp()) / (x.exp() + (-x).exp())
+            return f_tanh(s)
+        else:
+            raise Exception(f"Unknown activation function: {self.activation_fn}")
 
     def params(self) -> list[Value]:
         # TODO: return a list of all parameters of the Neuron
         # hint: weights and biases
-        pass
+        params = []
+        for weight in self.w:
+            params.append(weight)
+        params.append(self.b)
+        return params
 
     def __call__(self, x) -> Value:
         """
@@ -84,11 +101,13 @@ class Layer(Module):
     def __init__(self, N_in, N_out, activation_fn: str) -> None:
         self.N_in = N_in  # number of input features
         self.N_out = N_out  # number of output features
-        self.perceptrons = None  # TODO: initialize a list of Perceptrons in this layer
+        self.perceptrons = [Perceptron(N_in, activation_fn) for _ in range(N_out)]
 
     def __call__(self, x) -> Value | list[Value]:
         assert len(x) == self.N_in
-        out: list[Value] = []  # TODO: pass input x to each perceptron
+        out: list[Value] = []
+        for p in self.perceptrons:
+            out.append(p(x))
         if len(out) == 1:
             # NOTE: if out is a single number just return it. Ex: [n] -> n
             return out[0]
@@ -97,7 +116,10 @@ class Layer(Module):
 
     def params(self) -> list[Value]:
         # TODO: return a list of all params in this Layer, hint: you can reuse Perceptron's params method
-        pass
+        params = []
+        for p in self.perceptrons:
+            params.extend(p.params())
+        return params
 
     def __repr__(self) -> str:
         return f"Layer(N_in={self.N_in}, N_out={self.N_out})"
@@ -126,16 +148,23 @@ class MLP(Module):
     def __init__(self, N_in: int, N_outs: list[int], activation_fn: str):
         self.N = [N_in] + N_outs
         # TODO: initialize a list of Layer's, with the correct in/out dims for each one (hint: self.N has been assigned for you)
-        self.layers = None
+        layers = []
+        for _ in range(len(self.N) - 1):
+            layers.append(Layer(self.N[_], self.N[_ + 1], activation_fn))
+        self.layers = layers
 
     def __call__(self, x) -> Value | list[Value]:
-        # TODO: pass x through each Layer in self.layers
-        return None
+        for layer in self.layers:
+            x = layer(x)
+        return x
 
     def params(self) -> list[Value]:
         # TODO: return a list of all params in this MLP, hint: you can reuse Layer's params method
-        pass
-
+        params = []
+        for layer in self.layers:
+            params.extend(layer.params())
+        return params
+    
     def __repr__(self) -> str:
         # prints out mlp as a readable string
         return f"MLP({self.N}): {[str(l) for l in self.layers]}]"

@@ -219,9 +219,33 @@
 \newpage
 \section*{Question 2}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figs/ex_backprop_before.png}
+    \caption{Network diagram before backprop}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figs/ex_backprop_after.png}
+    \caption{Network diagram after one backpropagation}
+\end{figure}
+
 \newpage
 \section*{Question 3}
+I trained a three-layer network for 10 epochs with the AdamW optimizer and a learning rate of 0.001 on cross-entropy loss, and achieved over 85\% validation accuracy.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{examples/accuracy_epochs.png}
+    \caption{Accuracy over epochs}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{examples/losses_epochs.png}
+    \caption{Loss over epochs}
+\end{figure}
 
 \newpage
 \section*{Question 4}
@@ -335,7 +359,18 @@ So we need to apply the same correction
 
 \newpage
 \section*{Question 5}
-
+\begin{enumerate}
+    \item \texttt{doublify} takes a 0.001714 seconds on the kernel and 0.007752 seconds on the CPU for $N = 2^{12}$
+    \item See the figure below: \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\textwidth]{figs/gpu-vs-cpu-matmul.png}
+    \end{figure}
+    The GPU scales much better than the CPU, on a log scale, we see sharp changes in the slope of the CPU, which scales with a faster exponential coefficient with respect to the matrix size than the GPU does.
+    \item \begin{itemize}
+        \item Each thread (one kernel operation) only calculates one element in the resulting matrix $C$, despite loading a row and column from $A$ and $B$ which are reused for other multiplications. It might be more efficient to compute the results over spatially adjacent regions of $A$ and $B$.
+        \item Each thread currently only outputs one element, but we could reduce the number of required threads by computing multiple values of $C$ in the same kernel and thus reuse cached data as well as reduce the number of required kernels.
+    \end{itemize}
+\end{enumerate}
 
 \newpage
 \section*{Question 6}
@@ -344,7 +379,7 @@ So we need to apply the same correction
     
     Let $\bz_1 = W_1 \bz_0 + \mathbf{b}_1$.
     
-    Then $\bz_2 = W_2 \bz_1 + \mathbf{b_2} = W_2(W_1 \bz_0 + \mathbf{b_1}) + \mathbf{b_2}  = W_2W_1\bz_0 + (W_2 \mathbf{b_1} + \mathbf{b_2})$. But if we define $W' = W_2 W_1$ and $\mathbb{b}' = W_2 \mathbf{b_1} + \mathbf{b_2}$, then we can express the value of the output of this second linear layer $z_2$ as a single linear transformation $W' \bz + \mathbb{b}'$. So adding additional layers does not increase expressive power, since each additional layer only represents an affine transformation. 
+    Then $\bz_2 = W_2 \bz_1 + \mathbf{b_2} = W_2(W_1 \bz_0 + \mathbf{b_1}) + \mathbf{b_2}  = W_2W_1\bz_0 + (W_2 \mathbf{b_1} + \mathbf{b_2})$. But if we define $W' = W_2 W_1$ and $\mathbf{b}' = W_2 \mathbf{b_1} + \mathbf{b_2}$, then we can express the value of the output of this second linear layer $z_2$ as a single linear transformation $W' \bz + \mathbb{b}'$. So adding additional layers does not increase expressive power, since each additional layer only represents an affine transformation. 
 
     By induction, we can show that any $D$-layer network without nonlinearities can be collapsed down to one linear layer.
  
@@ -368,6 +403,7 @@ So we need to apply the same correction
             $(0, 0)$ & $\text{sign}(-1.5) = -1$ & $\text{sign}(-0.5) = -1$ \\
             $(0, 1)$ or $(1, 0)$ & $\text{sign}(-0.5) = -1$ & $\text{sign}(0.5) = 1$ \\
             $(1, 1)$ & $\text{sign}(0.5) =  1$ & $\text{sign}(1.5) = 1$ \\
+            \hline
         \end{tabular}
     \end{table}
 
@@ -376,8 +412,17 @@ So we need to apply the same correction
     
     A single layer perceptron computes $\bw^T \bx + b$, which is a hyperplane in $D$-dimensional space; in 2-dimensional space, a single layer defines a line. For the perceptron to correctly classify XOR, all positive examples must lie on one side of this line and all negative examples on the other side of the line. However, no such line exists. Any line separating $(0,0)$ from $(0,1)$ and $(1,0)$ must also separate $(0,0)$ from $(1,1)$, but $(0,0)$ and $(1,1)$ belong to the same class. 
 
-    \item In the base case,
- 
+    \item In the base case, with $D = 1$, \begin{align*}
+        y &= \sum_{i=1}^{W_1} a_i \text{RELU}(\bw^T x + b)
+    \end{align*}
+    Each RELU component corresponds to 2 pieces of a piecewise linear function, such that we can approximate a function $f$ if $\kappa(f) \leq 2W_1$. This is exactly the required relationship for $D = 1$.
+
+    Now, the inductive step: assume that $2^D \prod_{d=1}^D W_d$ pieces are sufficient to represent $f$.
+
+    Then, if we add $D+1$-th layer, the final output $y$ will be $$
+    y = \sum\limits_{i=1}^{W_{D+1}} \alpha_i \text{RELU}(\bw^T f(x) + b)
+    $$
+$\bw^T f(x) + b$ requires the same number of pieces as $f$ due it only being an affine translation on $f$. The RELU gives us at most twice as many piecewise functions. So we need $2 W_{D+1} \times 2^D \prod_{i=1}^D W_d = \times 2^{D+1} \prod_{i=1}^{D+1} W_d$ to represent the function, which is sufficient to show by induction that the required relationship holds.
 \end{enumerate}
 
 

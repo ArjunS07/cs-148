@@ -72,10 +72,13 @@ class Value:
     def __mul__(self, other) -> "Value":
         other = Value.parse(other)
         # TODO: (a)
-        res = Value(999_999_999, (), "×")
+        res = Value(
+            self.data * other.data, prev=(self, other), op="*"
+        )
 
         def _backward():
-            # TODO: (a)
+            self.grad += other.data * res.grad  # dL/dw_next * dw_next/dw
+            other.grad += self.data * res.grad  # dL/dw_next * dw_next
             pass
 
         res._backward = _backward
@@ -88,9 +91,7 @@ class Value:
         return self * -1
 
     def __sub__(self, other) -> "Value":
-        # TODO: implement in (b), reuse earlier fns
-        # hint: subtraction can be rewritten as addition with negation
-        pass
+        return self + (-Value.parse(other))
 
     def __rsub__(self, other) -> "Value":
         return Value.parse(other) - self
@@ -100,42 +101,49 @@ class Value:
             raise NotImplementedError(
                 "Value type can only be raised to int/float powers"
             )
-        # TODO: implement in (c)
-        res = Value(999_999_999, (), "^")
+        res = Value(
+            self.data**other, prev=(self,), op=f"**{other}"
+        )
 
         def _backward():
-            # TODO: implement in (c), only update self.grad
-            pass
+            self.grad += (other * self.data**(other - 1)) * res.grad
 
         res._backward = _backward
         return res
 
     def __truediv__(self, other) -> "Value":
-        # TODO: implement in (d), reuse earlier fns
-        # TODO: remember to throw a zeroDivisionError if the denominator is 0 or you'll fail a test!
-        # hint: division is really multiplying by the inverse
-        pass
+        other = Value.parse(other)
+        if other.data == 0:
+            raise ZeroDivisionError("division by zero")
+        return self * (other ** -1)
 
     def __rtruediv__(self, other) -> "Value":
         return Value.parse(other) / self
 
     def f_relu(self) -> "Value":
-        # TODO: part (e)
-        res = Value(999_999_999, (), "fn_relu")
+        res = None
+        if self.data > 0:
+            res = Value(self.data, (self,), "fn_relu")
+        else:
+            res = Value(0.0, (self,), "fn_relu")
 
         def _backward():
-            # TODO: part (e)
-            # NOTE: what's the derivative of the relu function?
+            if self.data > 0:
+                self.grad += res.grad * 1.0
+            else:
+                self.grad += res.grad * 0.0
             pass
 
         res._backward = _backward
         return res
 
     def f_sigmoid(self) -> "Value":
-        # TODO: part (f)
-        res = Value(999_999_999, (), "fn_σ")
+        res = Value(
+            (1 / (1 + math.exp(-self.data))), (self,), "fn_sigmoid"
+        )
 
         def _backward():
+            self.grad = res.grad * (res.data * (1 - res.data))
             # TODO: part (f)
             # NOTE: use this derivative of the sigmoid: https://www.geeksforgeeks.org/derivative-of-the-sigmoid-function/
             # or your tests may not pass
@@ -146,14 +154,10 @@ class Value:
         return res
 
     def f_tanh(self) -> "Value":
-        # TODO: part (g)
-        res = Value(999_999_999, (), "fn_tanh")
+        res = Value(math.tanh(self.data), (self,), "fn_tanh")
 
         def _backward():
-            # TODO: part (g)
-            # NOTE: use formula for derivative of tanh: https://blogs.cuit.columbia.edu/zp2130/derivative_of_tanh_function/
-            # or your tests may not pass
-            pass
+            self.grad = res.grad * (1 - res.data ** 2)
 
         res._backward = _backward
         return res
@@ -167,8 +171,9 @@ class Value:
 
         # TODO: part (h) set this value's self.grad to 1 
         # why? because: dL/dL = 1
+        self.grad = 1.0
         for value in reversed(vals_in_order):
-            # TODO: part (h), iterate and call each value's _backward to update its .grad property
+            value._backward()
             pass
 
     def __repr__(self) -> str:
