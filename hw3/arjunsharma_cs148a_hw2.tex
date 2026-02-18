@@ -1,0 +1,482 @@
+\documentclass{article}
+\usepackage[a4paper, margin=0.5in]{geometry}
+
+% Document Information
+\title{CS 148a Problem Set 2}
+\date{}
+
+% ================ Core Packages ================
+% Math and Symbol Packages
+\usepackage{amsmath, amsfonts, amssymb, amstext, amscd, amsthm}
+\usepackage{centernot}
+\allowdisplaybreaks
+% Document Structure and Formatting
+\usepackage{bookmark}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{blindtext}
+\usepackage{subfiles}
+\usepackage{xparse}
+\usepackage[skip=6pt plus1pt, indent=0pt]{parskip}
+\usepackage{pdfpages}
+\usepackage{float}
+
+% ================ Theorem Environments ================
+% Color and Box Packages
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\tcbuselibrary{theorems}
+\usepackage{mdframed}
+\usepackage{environ}
+
+% Color Definitions
+\definecolor{definitiongray}{RGB}{240,240,240}
+\definecolor{definitionborder}{RGB}{120,120,120}
+\definecolor{resultblue}{RGB}{240,245,255}
+\definecolor{resultborder}{RGB}{68,138,255}
+\definecolor{theoremred}{RGB}{255,240,240}
+\definecolor{theoremborder}{RGB}{255,102,102}
+
+% Box Styling
+\tcbset{
+    enhanced,
+    sharp corners,
+    boxrule=0.4pt,
+    top=8pt,
+    bottom=8pt,
+    left=8pt,
+    right=8pt,
+    fonttitle=\bfseries,
+    coltitle=black,
+    colback=white,
+    colframe=black,
+    attach boxed title to top left={xshift=0.5cm, yshift*=-\tcboxedtitleheight/2},
+    boxed title style={
+        sharp corners,
+        size=small,
+        colback=white,
+        colframe=black
+    }
+}
+
+% Theorem-like Environments
+% Create theorem counter
+\newcounter{theorem}[section]
+\renewcommand{\thetheorem}{\thesection.\arabic{theorem}}
+
+% Box Definitions with fixed numbering
+\newtcolorbox{definitionbox}[2][]{
+    title={Definition \thetheorem: #2},
+    colback=definitiongray,
+    colframe=definitionborder,
+    #1
+}
+
+\newtcolorbox{resultbox}[2][]{
+    title={Result \thetheorem: #2},
+    colback=resultblue,
+    colframe=resultborder,
+    #1
+}
+
+\newtcolorbox{theorembox}[2][]{
+    title={Theorem \thetheorem: #2},
+    colback=theoremred,
+    colframe=theoremborder,
+    #1
+}
+
+% Environment Definitions
+\newenvironment{definition}[2][]
+    {\refstepcounter{theorem}\begin{definitionbox}[#1]{#2}}
+    {\end{definitionbox}}
+
+\newenvironment{result}[1][]
+    {\refstepcounter{theorem}\begin{resultbox}{#1}}
+    {\end{resultbox}}
+
+\newenvironment{theorem}[1][]
+    {\refstepcounter{theorem}\begin{theorembox}{#1}}
+    {\end{theorembox}}
+
+% Package for more flexible spacing control
+\usepackage{mdframed}
+\usepackage{environ}
+
+% Define a very light green for the background
+\definecolor{propositionbg}{RGB}{245, 250, 245}    % Very light green background
+\definecolor{propositionframe}{RGB}{220, 235, 220}  % Slightly darker green for frame
+
+% Style for practice propositions
+\mdfdefinestyle{propositionstyle}{
+    linewidth=0.5pt,          
+    topline=true,             
+    bottomline=true,
+    leftline=false,
+    rightline=false,
+    backgroundcolor=propositionbg,    
+    linecolor=propositionframe,
+    innertopmargin=10pt,      
+    innerbottommargin=10pt,
+    innerleftmargin=12pt,     
+    innerrightmargin=12pt,
+    skipabove=1.2em,          
+    skipbelow=1.2em
+}
+
+% Counter for propositions
+\newcounter{proposition}[section]
+\renewcommand{\theproposition}{\thesection.\arabic{proposition}}
+
+% New proposition environment
+\NewEnviron{proposition}[3]{
+    \refstepcounter{proposition}
+    \smallskip
+    \begin{mdframed}[style=propositionstyle]
+        \textbf{#1}. \textit{#2}
+    \vspace{-0.25cm}
+    \begin{proof}
+        #3
+    \end{proof}
+    \end{mdframed}
+}
+
+% ================ Custom Commands ================
+% Math Commands
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\cnot}{\centernot}
+\newcommand{\notimplies}{\cnot\implies}
+\newcommand{\llim}{\lim \limits}
+\newcommand{\fin}[2]{~\forall #1 \in #2}
+\newcommand{\st}{\text{ s.t. }}
+\newcommand{\spn}{\text{span}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\ev}{\mathbb{E}}
+\newcommand{\loss}{\mathcal{L}}
+\newenvironment{amatrix}[1]{%
+  \left(\begin{array}{@{}*{#1}{c}|c@{}}
+}{%
+  \end{array}\right)
+}
+
+% partial derivatives
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\pdd}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\pddm}[3]{\frac{\partial^2 #1}{\partial #2 \partial #3}}
+
+\newcommand{\argmin}{\arg\min}
+\newcommand{\argmax}{\arg\max}
+
+% ================ List Formatting ================
+\renewcommand{\labelenumii}{\arabic{enumii}.}
+\renewcommand{\labelenumiii}{\arabic{enumiii}}
+
+% ================ Reference Formatting ================
+\newcommand{\resultautorefname}{result}
+\begin{document}
+\maketitle
+
+\newpage
+\section*{Question 1}
+\textbf{Prove that \begin{align*}
+    \ev[\loss(W)] &= ||y - f(p) Xw||^2 + g(p) || \Gamma w ||^2
+\end{align*}
+where $f(p)$ and $g(p)$ are functions of $p$, and $\Gamma$ is a diagonal matrix with the standard deviations of features in the data matrix $X$
+}
+
+   \begin{proof}
+    Let $D$ be a diagonal matrix where $D_{ii} \sim \text{Bernoulli}(p)$ represents the dropout mask applied to the features. The modified matrix will be $XD$, with some features destroyed by the mask in every sample. The loss function is:
+    
+    \begin{align*}
+        \ev [||y - XDw||^2] &= \ev[(y - XDw)^T (y - XDw)]\\
+        &= \ev[y^T y - 2y^T XDw + (XDw)^T (XDw)]\\
+        &= y^T y - 2y^T X \ev[D] w + \ev[w^T D^T X^T X D w]
+    \end{align*}
+
+    First, handle the linear term. Since $\ev[D] = pI$:
+    \begin{equation*}
+        - 2y^T X \ev[D] w = -2p y^T X w
+    \end{equation*}
+
+    Now we handle the quadratic term. Let $A = X^T X$. We need to evaluate $\ev[w^T D A D w]$.
+    Expanding the matrix multiplication into a summation:
+    \begin{align*}
+        \ev[w^T D A D w] &= \ev \left[ \sum_{i} \sum_j (Dw)_i A_{ij} (Dw)_j \right] \tag{sum of a quadratic form} \\
+        &= \sum_i \sum_j (D_{ii} w_i) A_{ij} (D_{jj} w_j) \tag{since $D$ is diagonal, so multiply $w$ by $D$ just scales $w_n$ by $D_{nn}$} \\
+        &= \sum_i \sum_j w_i w_j A_{ij} \ev[D_{ii} D_{jj}] \tag{move deterministic values and use linearity of expectation over random variablers}
+    \end{align*}
+    
+    \begin{itemize}
+        \item If $i \neq j$: $\ev[D_{ii} D_{jj}] = \ev[D_{ii}]\ev[D_{jj}] = p \cdot p = p^2$, since the dropout probabilities are independent
+        \item If $i = j$: $\ev[D_{ii} D_{jj}] = \ev[D_{ii}^2] = p$ (since $x^2=x$ for $x \in \{0,1\}$ and the probabilities are perfectly correlated)
+    \end{itemize}
+
+    We split the sum:
+    \begin{align*}
+        \ev[w^T D A D w] &= \sum_i \sum_{j \neq i} w_i w_j A_{ij} p^2 + \sum_i w_i^2 A_{ii} p \\
+                         &= \sum_i \sum_{j \neq i} w_i w_j A_{ij} p^2  + \sum_i w_i^2 A_{ii} p^2 - \sum_i w_i^2 A_{ii} p^2 + \sum_i w_i^2 A_{ii} p \\
+                         &= \sum_{i} \sum_j w_i w_j A_{ij} p^2 + \sum_{i} w_i^2 A_{ii} [p - p^2]\\
+        &= p^2 \underbrace{\sum_{i,j} w_i w_j A_{ij}}_{w^T A w} + p(1-p) \underbrace{\sum_{i} w_i^2 A_{ii}}_{w^T \text{diag}(A) w}
+    \end{align*}
+    
+    By definition\footnote{from Piazza}, $ \Gamma^2 = \text{diag}(X^T X) = \text{diag}(A)$. So we can write the sum as
+    \begin{align*}
+        \ev[w^T D X^T X D w] &= p^2 w^T X^T X w + p(1-p) w^T \Gamma^2 w \\
+        &= ||pXw||^2 + p(1-p) ||\Gamma w||^2
+    \end{align*}
+
+    Finally, substitute the linear and quadratic terms back into the original expression:
+    \begin{align*}
+        \ev [||y - XDw||^2] &= ||y||^2 - 2p y^T X w + ||pXw||^2 + p(1-p) ||\Gamma w||^2 \\
+        &= ||y - pXw||^2 + p(1-p) ||\Gamma w||^2
+    \end{align*}
+
+\end{proof}
+
+\newpage
+\section*{Question 2}
+
+\begin{itemize}
+    \item[(a)] \begin{enumerate}
+        \item \begin{align*}
+            \pd{\loss}{\beta_j} &= \sum\limits_{i=1}^N \pd{\loss}{Y_{ij}} \cdot \pd{Y_{ij}}{\beta_j} \\
+            &= \sum\limits_{i=1}^N \pd{\loss}{Y_{ij}} (1)\\
+            &= \sum\limits_{i=1}^N \pd{\loss}{Y_{ij}} \\
+            \implies \pd{\loss}{\beta} &= \pd{\loss}{Y}
+        \end{align*}
+
+        \item \begin{align*}
+            \pd{\loss}{\gamma_j} &= \sum\limits_{i=1}^N \pd{\loss}{Y_{ij}} \cdot \pd{Y_{ij}}{\gamma_j} \\
+            &= \sum\limits_{i=1}^N \pd{\loss}{Y_{ij}} \cdot \hat{X}_{ij}\\
+            \implies \pd{\loss}{\gamma} &= \sum\limits_{i=1}^N \pd{\loss}{Y_i} \circ \hat{X}_i
+        \end{align*}
+
+        \item \item By the chain rule, we can decompose the gradient into \begin{align*}
+\pd{\mathcal{L}}{X_{ij}} &= \pd{\mathcal{L}}{\hat{X}_{ij}} \pd{\hat{X}_{ij}}{X_{ij}} + \pd{\mathcal{L}}{\sigma_j^2} \pd{\sigma_j^2}{X_{ij}} + \pd{\mathcal{L}}{\mu_j} \pd{\mu_j}{X_{ij}}
+\end{align*}
+We now tackle each component \begin{itemize}
+    \item \begin{align*}
+         \pd{\mathcal{L}}{\hat{X}_{ij}} &= \pd{\mathcal{L}}{Y_{ij}} \pd{Y_{ij}}{\hat{X}_{ij}}\\
+        &= \pd{\mathcal{L}}{Y_{ij}} \gamma_j
+    \end{align*}
+    \begin{align*}
+        \pd{\hat{X}_{ij}}{X_{ij}}  &= \frac{1}{\sqrt{\sigma_j^2 + \epsilon}}
+    \end{align*}
+    \item \begin{align*}
+        \pd{\mathcal{L}}{\sigma_j^2} &= \sum_{k=1}^N \pd{\mathcal{L}}{\hat{X}_{kj}} \pd{\hat{X}_{kj}}{\sigma_j^2}\\
+        &= \sum_{k=1}^N \pd{\mathcal{L}}{\hat{X}_{kj}} \cdot (X_{kj} - \mu_j) \cdot (-\frac{1}{2})(\sigma_j^2 + \epsilon)^{-3/2}
+    \end{align*}
+    \begin{align*}
+        \pd{\sigma_j^2}{X_{ij}} &= \frac{2(X_{ij} - \mu_j)}{N}
+    \end{align*}
+
+    \item \begin{align*}
+        \pd{\mathcal{L}}{\mu_j} &= \sum\limits_{k=1}^N \pd{\mathcal{L}}{\hat{X}_{kj}} \pd{\hat{X}_{kj}}{\mu_j}\\
+        &= \sum\limits_{k=1}^N \pd{\mathcal{L}}{\hat{X}_{kj}} \left(\frac{-1}{\sqrt{\sigma_j^2 + \epsilon}} \right)
+    \end{align*}
+    \begin{align*}
+        \pd{\mu_j}{X_{ij}} &= \frac{1}{N}
+    \end{align*}
+\end{itemize}
+
+So the final gradient is \begin{align*}
+    \pd{\mathcal{L}}{X_{ij}} =& \pd{\mathcal{L}}{Y_{ij}} \gamma_j \frac{1}{\sqrt{\sigma_j^2 + \epsilon}} \\
+    &+ \sum_{k=1}^N \pd{\mathcal{L}}{\hat{X}_{kj}} (X_{kj} - \mu_j) \cdot (-\frac{1}{2})(\sigma_j^2 + \epsilon)^{-3/2} \cdot \frac{2(X_{ij} - \mu_j)}{N} \\
+    &+ \frac{1}{N}\sum\limits_{k=1}^N \pd{\mathcal{L}}{\hat{X}_{kj}} \left(\frac{-1}{\sqrt{\sigma_j^2 + \epsilon}} \right)\\
+    =& \frac{\gamma_j}{\sqrt{\sigma_j^2 + \epsilon}} \left[
+        \pd{\mathcal{L}}{Y_{ij}} - \frac{1}{N}\sum_{k=1}^N \pd{\mathcal{L}}{\hat{X}_{kj}} - \frac{(X_{ij} - \mu_j)}{\sigma_j^2 + \epsilon} \cdot \frac{1}{N}\sum_{k=1}^N \pd{\mathcal{L}}{\hat{X}_{kj}}(X_{kj} - \mu_j)
+    \right]\\
+    &= \frac{\gamma_j}{\sqrt{\sigma_j^2 + \epsilon}} \left[
+        \pd{\mathcal{L}}{Y_{ij}} - \frac{1}{N}\sum_{k=1}^N \pd{\mathcal{L}}{Y_{kj}}\gamma_j - \hat{X}_{ij} \cdot \frac{1}{N}\sum_{k=1}^N \pd{\mathcal{L}}{Y_{kj}}\gamma_j\hat{X}_{kj}
+    \right]
+\end{align*}
+    \end{enumerate}
+\end{itemize}
+
+\newpage
+\section*{Question 3}
+\begin{itemize}
+\item[(a)]
+
+\begin{enumerate}
+    \item \begin{align*}
+        \frac{\partial \mathcal{L}}{\partial \beta_j} = \sum_{i=1}^N \frac{\partial \mathcal{L}}{\partial Y_{ij}} \frac{\partial Y_{ij}}{\partial \beta_j} = \sum_{i=1}^N \frac{\partial \mathcal{L}}{\partial Y_{ij}}
+    \end{align*}
+    \item \begin{align*}
+        \frac{\partial \mathcal{L}}{\partial \gamma_j} = \sum_{i=1}^N \frac{\partial \mathcal{L}}{\partial Y_{ij}} \frac{\partial Y_{ij}}{\partial \gamma_j} = \sum_{i=1}^N \frac{\partial \mathcal{L}}{\partial Y_{ij}} \hat{X}_{ij}
+    \end{align*}
+    \item \begin{align*}
+        \frac{\partial \mathcal{L}}{\partial X_{ij}} = \frac{\partial \mathcal{L}}{\partial \hat{X}_{ij}} \frac{\partial \hat{X}_{ij}}{\partial X_{ij}} + \frac{\partial \mathcal{L}}{\partial \sigma_i^2} \frac{\partial \sigma_i^2}{\partial X_{ij}} + \frac{\partial \mathcal{L}}{\partial \mu_i} \frac{\partial \mu_i}{\partial X_{ij}}
+    \end{align*} \begin{enumerate}
+        \item \begin{align*}
+            \frac{\partial \mathcal{L}}{\partial \hat{X}_{ij}} &= \frac{\partial \mathcal{L}}{\partial Y_{ij}} \gamma_j\\
+            \frac{\partial \hat{X}_{ij}}{\partial X_{ij}} &= \frac{1}{\sqrt{\sigma_i^2 + \epsilon}}
+        \end{align*}
+        \item \begin{align*}
+            \frac{\partial \mathcal{L}}{\partial \sigma_i^2} &= \sum_{k=1}^D \frac{\partial \mathcal{L}}{\partial \hat{X}_{ik}} \frac{\partial \hat{X}_{ik}}{\partial \sigma_i^2} = \sum_{k=1}^D \frac{\partial \mathcal{L}}{\partial \hat{X}_{ik}} \cdot (X_{ik} - \mu_i) \cdot \left(-\frac{1}{2}\right)(\sigma_i^2 + \epsilon)^{-3/2}\\
+\frac{\partial \sigma_i^2}{\partial X_{ij}} &= \frac{2(X_{ij} - \mu_i)}{D}
+        \end{align*}
+        \item \begin{align*}
+            \frac{\partial \mathcal{L}}{\partial \mu_i} &= \sum_{k=1}^D \frac{\partial \mathcal{L}}{\partial \hat{X}_{ik}} \frac{\partial \hat{X}_{ik}}{\partial \mu_i} = \sum_{k=1}^D \frac{\partial \mathcal{L}}{\partial \hat{X}_{ik}} \left(\frac{-1}{\sqrt{\sigma_i^2 + \epsilon}}\right)\\
+            \frac{\partial \mu_i}{\partial X_{ij}} &= \frac{1}{D}
+        \end{align*}
+    \end{enumerate}
+    So the final gradient, using a similar series of simplifications as in the previous part, will be \begin{align*} 
+\frac{\partial \mathcal{L}}{\partial X_{ij}} = \frac{1}{D\sqrt{\sigma_i^2 + \epsilon}} \left[
+D \gamma_j \frac{\partial \mathcal{L}}{\partial Y_{ij}} - \sum\limits_{k=1}^D \gamma_k\frac{\partial \mathcal{L}}{\partial Y_{ik}} - \hat{X}{ij}\sum\limits_{k=1}^D \gamma_k\frac{\partial \mathcal{L}}{\partial Y_{ik}}\hat{X}_{ik}
+\right]
+    \end{align*}
+\end{enumerate}
+\item[(c)]
+In the case where $\beta$ and $\gamma$ are set to $0$ and $1$ (vectors), we have the following expressions for elements in the public matrix $Y$ and private matrix $Z$:
+\begin{align*}
+    Y_{ij} &= 1 \cdot \hat{X}_{ij} + 0\\
+    &= \frac{X_{ij} - \mu_j}{\sqrt{\sigma_j^2 + \epsilon}}\\
+    Z_{ij} &= 1 \cdot \overline{X}_{ij} + 0\\
+            &= \frac{X_{ij} - \mu_i}{\sqrt{\sigma_i^2 + \epsilon}}\\
+    Y_{ji} &= \hat{X}_{ji} = \frac{X_{ji} - \mu_i}{\sqrt{\sigma_i^2 + \epsilon}} \tag{looking at transposed indices}\\
+    &= \frac{X_{ij} - \mu_i}{\sqrt{\sigma_i^2 + \epsilon}} \tag{since $X$ is symmetric}\\
+    \implies Y_{ji} &= Z_{ij}
+\end{align*}
+Therefore, $Y = Z^T$. Give knowledge of $Y$, we know every element in the $16 \times 16$ matrix $Z$, such that we know all 256 elements in $Z$.
+
+In the case where $\beta$ and $\gamma$ may take arbitrary values, \begin{align*}
+    Y_{ij} &= \gamma_j \hat{X}_{ij} + \beta_j\\
+            &= \gamma_j \frac{X_{ij} - \mu_j}{\sqrt{\sigma_j^2 + \epsilon}} + \beta_j\\
+    \implies Y_{ji} &= \gamma_i \frac{X_{ji} - \mu_i}{\sqrt{\sigma_i^2 + \epsilon}} + \beta_i \\
+    Z_{ij} &= \gamma_j \overline{X}_{ij} + \beta_j\\
+    &= \gamma_j  \frac{X_{ij} - \mu_i}{\sqrt{\sigma_i^2 + \epsilon}} + \beta_j\\
+    \implies \frac{Z_{ij}}{Y_{ji}} &= \frac{\gamma_j  \frac{X_{ij} - \mu_i}{\sqrt{\sigma_i^2 + \epsilon}} + \beta_j}{\gamma_i \frac{X_{ji} - \mu_i}{\sqrt{\sigma_i^2 + \epsilon}} + \beta_i}\\
+    &= \frac{\gamma_j  \frac{X_{ij} - \mu_i}{\sqrt{\sigma_i^2 + \epsilon}} + \beta_j}{\gamma_i \frac{X_{ij} - \mu_i}{\sqrt{\sigma_i^2 + \epsilon}} + \beta_i} \tag{just changing the indices in the denominato since $X$ is symmetric}\\
+    \implies \frac{Z_{ij} - \beta_j}{Y_{ji} - \beta_i }&= \frac{\gamma_j  \frac{X_{ij} - \mu_i}{\sqrt{\sigma_i^2 + \epsilon}}}{\gamma_i \frac{X_{ij} - \mu_i}{\sqrt{\sigma_i^2 + \epsilon}}} \tag{editing the original ratio} \\
+    \implies \frac{Z_{ij} - \beta_j}{Y_{ji} - \beta_i }&= \frac{\gamma_j}{\gamma_i } \\
+    \implies Z_{ij} &= \frac{\gamma_j}{\gamma_i } \left( Y_{ji} - \beta_i  \right) + \beta_j
+\end{align*}
+Along the diagonal elements, when $i = j$, this simplifies to \begin{align*}
+    Z_{ii} = Y_ii
+\end{align*}
+However, this is not true for $i \neq j$ in general. Therefore, for arbitrary $\beta$ and $\gamma$, the only known elements are the 16 diagonal elements.
+
+
+\end{itemize}
+\newpage
+\section*{Question 4}
+\textit{Question (a)(3) and (b)(1) are the same here, so I only submit the below proof once}
+\begin{itemize}
+    \item[(b)] We assume that the $\ell_2$ regularized update expression also includes $\nabla_w \mathcal{L}$, such that we have to show
+    \begin{align*}
+        w_{t+1} &\leftarrow w_t - \eta(\nabla_w \loss + \lambda_{wd} w_t) \tag{1}\\
+        \leftrightarrow w_{t+1} &\leftarrow w_t - \eta(\nabla_w \loss + \nabla_w \lambda_{l2} \sum\limits_{i} w_i^2) \tag{2}
+    \end{align*}
+    It is therefore sufficient to show that $\nabla_w \lambda_{l2} \sum\limits_{i} w_i^2$ is equivalent to $\lambda_{wd} w_t$ up to a constant scale factor. 
+    The $j$-th component of the gradient vector will be $\pd{}{w_j} \sum_i w_i^2 = \pd{}{w_j}[w_1^2 + w^2 + \dots w_j^2 + \dots w_n^2] = 2w_j$. So 
+    $$
+    \lambda_{l2} \nabla_w \sum_i w_i^2 = \lambda_{l2} (2w)
+    $$
+
+    Note that this $w$ is the same as $w_t$, with the subscript having been ommitted for notational simplicity.
+
+    This is equigavlent to $\lambda_{wd} w_t$ if we set $\lambda_{wd} = 2 \lambda_{l2}$. So with SGD, $\ell_2$ regularized updates are equivalent to weight decay updates. 
+    \item[(c)] \begin{enumerate}
+        \item In Adam, we normalize the gradient by the square root of its variance to ensure constant scale for all parameter updates, such that \begin{align*}
+        w_{t+1, i} &= w_{t, i} - \eta \frac{
+            \bar{s}_{t+1, i}
+        }{
+            \sqrt{\bar{r}_{t+1, i} + \delta}
+        }
+    \end{align*}
+    where
+\begin{gather*}
+    g_{t, i} = \pd{\mathcal{L}(w_{t, i})}{w_i}\\[1em]
+    \begin{aligned}
+        s_{t+1, i} &= \beta_1 s_{t, i} + (1 - \beta_1) g_t &\qquad
+        \bar{s}_{t+1, i} &= \frac{s_{t+1, i}}{1 - \beta_1^{t+1}}
+    \end{aligned}\tag{1}\\
+    \begin{aligned}
+        r_{t+1, i} &= \beta_2 r_{t, i} + (1 - \beta_2) g_{t,i}^2 &\qquad 
+        \bar{r}_{t+1, i} &= \frac{r_{t+1, i}}{1 - \beta_2^{t+1}}
+    \end{aligned}\tag{2}
+\end{gather*}
+
+We require that, in expectation, the factor $s_{t+1, i}$ is equal to the mean of the gradient for that parameter $\mu = \mathbb{E}[g_i]$.
+
+\begin{align*}
+    s_{t+1, i} &= (1 - \beta_1) \sum\limits_{k=1}^t \beta_1^{t-k} g_{k, i} \tag{unrolling the recurrence}\\
+    \implies \mathbb{E}[s_{t+1, i}] &= (1 - \beta_1) \sum\limits_{k=1}^t \beta_1^{t - k} \mathbb{E}[g_k]\\
+    &= (1 - \beta_1) \mu \sum\limits_{k=1}^t \beta_1^{t - k} \tag{letting $\mu = \mathbb{E}[g_k]$}\\
+    &= \mu (1 - \beta_1) (1) \frac{1 - \beta_1^t}{1 - \beta_1} \tag{sum of geometric series}\\
+    &= \mu (1 - \beta_1^t)
+\end{align*}
+So while we require $\ev[g_i] = \mu$, it is instead equal to $\mu(1 - \beta_1^t)$. We therefore divide by this extra factor at each step, using $$\bar{s}_{t+1, i} = \frac{s_{t+1, i}}{1 - \beta_1^t}$$.
+
+\item In \textbf{SGD with momentum}, updates are made as \begin{align*}
+    v_{t+1} &= \beta v_t + (1 - \beta) \nabla_w \loss(w_t) \tag{1}\\
+    w_{t+1} &= w_t  - \eta v_{t+1} \tag{2}
+\end{align*}
+With $\ell_2$ regularization, the momentum term used in (2) would become \begin{align*}
+    v_{t+1} &= \beta v_t + (1 - \beta) \nabla_w \loss(w_t) + 2 \lambda w_t
+\end{align*}
+Such that the regularization term is accumulated in the momentum and couples regularization with the optimization dynamics in a complicated manner. This would cause regularization to build up over time through the moving average $v_t$ with weight $\beta$, and cause the effective regularization strength to depend on $\beta$ in addition to $\lambda$.
+
+Using \textbf{RMSProp}, updates are made as \begin{align*}
+    v_{t+1} &= \beta v_t + (1-\beta)(\nabla_w \loss(w_t))^2\\
+    w_{t+1} &= w_t - \frac{\eta}{\sqrt{v_{t+1}} + \epsilon} \nabla_w \loss(w_t)
+\end{align*}
+With $\ell_2$ regularization, the update rules would both change: \begin{align*}
+    v_{t+1} &= \beta v_t + (1-\beta)(\nabla_w \loss(w_t) + 2 \lambda w_t)^2 \tag{the factor of 2 appears since we differentiate $\lambda||w||^2$ with respect to $w$}\\
+    w_{t+1} &= w_t - \frac{\eta}{\sqrt{v_{t+1}} + \epsilon} (\nabla_w \loss(w_t) + 2\lambda w_t )
+\end{align*}
+This is problematic because the regularization term $2\lambda w_t$ gets squared and added to the adaptive learning rate denominator $v_{t+1}$. For parameters with large weights, this inflates $v_{t+1}$, which reduces the effective learning rate via the denominator term in the weight update $\frac{1}{\sqrt{v_{t+1}}}$. This means parameters that need the most regularization (those with large values) receive smaller gradient updates, thereby weakening the regularization effect. The regularization strength becomes coupled with the adaptive learning rate mechanism in an undesirable way.
+
+Using \textbf{Adam}, updates are made as\begin{align*}
+        w_{t+1} &= w_{t} - \eta \frac{
+            \bar{s}_{t+1}
+        }{
+            \sqrt{\bar{r}_{t+1} + \delta}
+        }
+    \end{align*}
+    where
+\begin{gather*}
+    g_{t} = \nabla_w \loss(w_t)\\
+    \begin{aligned}
+        s_{t+1} &= \beta_1 s_{t} + (1 - \beta_1) g_t &\qquad
+        \bar{s}_{t+1} &= \frac{s_{t+1}}{1 - \beta_1^{t+1}}
+    \end{aligned}\tag{1}\\
+    \begin{aligned}
+        r_{t+1} &= \beta_2 r_{t} + (1 - \beta_2) g_{t}^2 &\qquad 
+        \bar{r}_{t+1} &= \frac{r_{t+1}}{1 - \beta_2^{t+1}}
+    \end{aligned}\tag{2}
+\end{gather*}
+With $\ell_2$ regularization, the regularization term is accumulated into both the moving average and variance terms: \begin{align*}
+        g_{t} &= \nabla_w \loss(w_t) + 2 \lambda w_t\\
+        \implies s_{t+1} &= \beta_1 s_{t} + (1 - \beta_1) (\nabla_w \loss(w_t) + 2 \lambda w_t)\\
+        \text{ and } r_{t+1} &= \beta_2 r_{t} + (1 - \beta_2) (\nabla_w \loss(w_t) + 2 \lambda w_t)^2
+\end{align*}
+This combines the issue of SGD and RMSProp when $\ell_2$ regularization is applied. The regularization term $2\lambda w_t$ accumulates in the momentum $s_t$, coupling regularization strength with $\beta_1$. Additionally, the squared regularization term inflates $v_t$, reducing the effective step size for large weights. Critically, parameters with large weights receive smaller updates, which weakens regularization when it should be strongest.
+
+\item The AdamW update rule applies the weight penalty after the adaptive moment-based update, applying weight decay directly to the weights:
+\begin{align*}
+        w_{t+1} &= w_{t} - \eta \frac{
+            \bar{s}_{t+1}
+        }{
+            \sqrt{\bar{r}_{t+1} + \delta}
+        } - \eta \lambda w_t
+\end{align*}
+$g_t$, and therefore $s_t$ and $r_t$, are maintained as in the original Adam formulation:\begin{align*}
+    g_{t} &= \nabla_w \loss(w_t)\\
+    s_{t+1} &= \beta_1 s_{t} + (1 - \beta_1) g_t \\
+    r_{t+1} &= \beta_2 r_{t} + (1 - \beta_2) g_{t}^2
+\end{align*}
+
+This ensures that all parameters receive regularization proportional to their magnitude regardless of their gradient history, that the regularization strength is decoupled from the optimizer's momentum and adaptive learning rate mechanisms, and that large weights are penalized consistently.
+\end{enumerate}
+\end{itemize}
+
+\end{document}
