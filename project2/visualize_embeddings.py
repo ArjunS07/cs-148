@@ -11,7 +11,6 @@ feature extractor for more meaningful projections than raw pixels.
 
 Usage:
     python visualize_embeddings.py checkpoints/run2/best_model.pt
-    python visualize_embeddings.py checkpoints/run2/best_model.pt --model convnext --method tsne
 """
 
 import argparse
@@ -27,7 +26,7 @@ import torch.nn as nn
 from sklearn.decomposition import PCA
 from torch.utils.data import DataLoader
 
-from model import build_model, ResNet18, ConvNeXtFemto
+from model import build_model, ResNet18
 from dataset import (
     ProvidedDigitDataset,
     SyntheticMNISTDataset,
@@ -73,7 +72,7 @@ class FeatureExtractor(nn.Module):
         if isinstance(model, ResNet18):
             # Hook after avgpool, before fc
             model.avgpool.register_forward_hook(self._hook)
-        elif isinstance(model, ConvNeXtFemto):
+        elif isinstance(model):
             # Hook after adaptive avg pool in head (first element)
             model.head[0].register_forward_hook(self._hook)
 
@@ -252,7 +251,7 @@ def main():
     parser = argparse.ArgumentParser(description="Visualize embeddings in 2D")
     parser.add_argument("checkpoint", type=str, help="Path to best_model.pt")
     parser.add_argument("--model", type=str, default="resnet18",
-                        choices=["resnet18", "convnext"])
+                        choices=["resnet18"])
     parser.add_argument("--data-dir", type=str, default="data/dataset")
     parser.add_argument("--out-dir", type=str, default=None)
     parser.add_argument("--img-size", type=int, default=128)

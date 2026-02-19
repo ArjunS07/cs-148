@@ -11,10 +11,6 @@ from torchvision.datasets import MNIST
 from PIL import Image, ImageDraw, ImageFilter
 
 
-# ---------------------------------------------------------------------------
-# Augmentation transforms
-# ---------------------------------------------------------------------------
-
 def get_train_transform(img_size: int = 128):
     """Full augmentation pipeline — no horizontal flips (digit identity)."""
     return transforms.Compose([
@@ -42,11 +38,6 @@ def get_val_transform(img_size: int = 128):
                              std=[0.229, 0.224, 0.225]),
     ])
 
-
-
-# ---------------------------------------------------------------------------
-# Real-image dataset
-# ---------------------------------------------------------------------------
 
 class ProvidedDigitDataset(Dataset):
     """
@@ -90,10 +81,6 @@ class ProvidedDigitDataset(Dataset):
 
         return img, self.labels[idx], self.SOURCE_REAL
 
-
-# ---------------------------------------------------------------------------
-# Synthetic MNIST supplement
-# ---------------------------------------------------------------------------
 
 def _random_background_crop(
     bg_paths: list[str], size: int
@@ -199,10 +186,6 @@ class SyntheticMNISTDataset(Dataset):
         return img, label, self.SOURCE_SYNTHETIC
 
 
-# ---------------------------------------------------------------------------
-# Combined dataset
-# ---------------------------------------------------------------------------
-
 class CombinedDataset(Dataset):
     """Concatenation of real + synthetic datasets.
 
@@ -225,7 +208,13 @@ class CombinedDataset(Dataset):
 def mixup_batch(
     images: torch.Tensor, labels: torch.Tensor, alpha: float = 0.2, num_classes: int = 10
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Apply MixUp to a batch. Returns mixed images and soft label vectors."""
+    """Apply MixUp to a batch. Returns mixed images and soft label vectors.
+    
+    This is implicitly a regularization technique, by incorporating prior knowledge that linear interpolations of images should correspond to linear interpolations of labels. 
+    
+    Idea from the original paper:
+    https://arxiv.org/pdf/1710.09412
+    """
     batch_size = images.size(0)
     lam = np.random.beta(alpha, alpha)
     indices = torch.randperm(batch_size, device=images.device)
@@ -247,7 +236,6 @@ def stratified_split(
     """Split files into train/val with stratification by digit class."""
     files = sorted(f for f in os.listdir(data_dir) if f.endswith(".jpg"))
 
-    # Group by label
     by_label: dict[int, list[str]] = {}
     for f in files:
         label = int(f.split("_")[-1].replace(".jpg", "").replace("label", ""))
@@ -272,20 +260,16 @@ def stratified_split(
 if __name__ == "__main__":
     data_dir = "data/dataset"
 
-    # Test split
     train_files, val_files = stratified_split(data_dir)
     print(f"Train: {len(train_files)}, Val: {len(val_files)}")
 
-    # Test real dataset
     ds = ProvidedDigitDataset(data_dir, transform=get_val_transform(128), file_list=train_files[:100])
     img, label = ds[0]
     print(f"Real image shape: {img.shape}, label: {label}")
 
-    # Test synthetic dataset
     syn = SyntheticMNISTDataset(data_dir, transform=get_val_transform(128), num_samples=50)
     img, label = syn[0]
     print(f"Synthetic image shape: {img.shape}, label: {label}")
 
-    # Test combined
     combined = CombinedDataset(ds, syn)
     print(f"Combined dataset size: {len(combined)}")

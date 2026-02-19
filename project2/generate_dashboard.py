@@ -21,7 +21,7 @@ from PIL import Image
 from sklearn.decomposition import PCA
 from torch.utils.data import DataLoader
 
-from model import build_model, ResNet18, ConvNeXtFemto
+from model import build_model, ResNet18
 from dataset import (
     ProvidedDigitDataset,
     SyntheticMNISTDataset,
@@ -45,8 +45,6 @@ class FeatureExtractor:
         self._features = None
         if isinstance(model, ResNet18):
             model.avgpool.register_forward_hook(self._hook)
-        elif isinstance(model, ConvNeXtFemto):
-            model.head[0].register_forward_hook(self._hook)
 
     def _hook(self, module, inp, out):
         self._features = out
@@ -322,7 +320,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate interactive PCA dashboard")
     parser.add_argument("checkpoint", type=str)
     parser.add_argument("--model", type=str, default="resnet18",
-                        choices=["resnet18", "convnext"])
+                        choices=["resnet18"])
     parser.add_argument("--data-dir", type=str, default="data/dataset")
     parser.add_argument("--out", type=str, default="dashboard.html")
     parser.add_argument("--img-size", type=int, default=128)

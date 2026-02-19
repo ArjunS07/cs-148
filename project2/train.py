@@ -284,11 +284,7 @@ def train(args):
 
     # Model
     model_kwargs = {}
-    if args.model == "convnext":
-        model_kwargs["drop_path_rate"] = args.drop_path_rate
-        model_kwargs["dims"] = tuple(args.dims)
-        model_kwargs["depths"] = tuple(args.depths)
-    elif args.model == "resnet18":
+    if args.model == "resnet18":
         model_kwargs["drop_rate"] = args.drop_rate
         model_kwargs["base_width"] = args.base_width
     model = build_model(args.model, **model_kwargs)
@@ -507,7 +503,7 @@ def train(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Train ConvNeXt-Femto on wild digits")
+    parser = argparse.ArgumentParser(description="Train ResNet18 on corrupted MNIST data")
     parser.add_argument("--data-dir", type=str, default="data/dataset")
     parser.add_argument("--save-dir", type=str, default="checkpoints")
     parser.add_argument("--epochs", type=int, default=150)
@@ -530,14 +526,8 @@ def main():
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--model", type=str, default="resnet18",
-                        choices=["resnet18", "convnext"],
+                        choices=["resnet18"],
                         help="Model architecture")
-    # ConvNeXt-specific
-    parser.add_argument("--dims", type=int, nargs=4, default=[96, 192, 384, 768],
-                        help="Channel dims for 4 stages (convnext only)")
-    parser.add_argument("--depths", type=int, nargs=4, default=[3, 3, 9, 3],
-                        help="Block depths for 4 stages (convnext only)")
-    # ResNet-specific
     parser.add_argument("--drop-rate", type=float, default=0.0,
                         help="Dropout before final FC (resnet18 only)")
     parser.add_argument("--base-width", type=int, default=64,

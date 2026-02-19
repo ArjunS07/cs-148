@@ -1,5 +1,4 @@
-"""HuggingFace pipeline wrapper for ConvNeXt-Femto submission.
-
+"""HF pipeline
 Usage:
     python pipeline.py --checkpoint checkpoints/best_model.pt --save pipeline-cnn.pt
     python pipeline.py --checkpoint checkpoints/best_model.pt --push --username YOUR_USERNAME --token YOUR_TOKEN

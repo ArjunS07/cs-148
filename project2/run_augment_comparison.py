@@ -65,46 +65,32 @@ BASE_ARGS = [
 
 def main():
     start = time.time()
-    log("=" * 60)
-    log("ABLATION: augmentations x synthetic data")
-    log("=" * 60)
-
-    # Run 5: Real only, no augmentations
     log("\n--- Run 5: Real only, no augmentations ---")
     run_training("run5_real_noaug", BASE_ARGS + [
         "--synthetic-n", "0", "--no-augment",
     ])
 
-    # Run 6: Real only, with augmentations
     log("\n--- Run 6: Real only, with augmentations ---")
     run_training("run6_real_aug", BASE_ARGS + [
         "--synthetic-n", "0",
     ])
 
-    # Run 7: Real + synthetic, no augmentations
     log("\n--- Run 7: Real + synthetic, no augmentations ---")
     run_training("run7_syn_noaug", BASE_ARGS + [
         "--synthetic-n", "3000", "--no-augment",
     ])
 
-    # Run 8: Real + synthetic, with augmentations
     log("\n--- Run 8: Real + synthetic, with augmentations ---")
     run_training("run8_syn_aug", BASE_ARGS + [
         "--synthetic-n", "3000",
     ])
 
-    # Summary
-    log("\n" + "=" * 60)
-    log("SUMMARY")
-    log("=" * 60)
     import torch
     for name in ["run5_real_noaug", "run6_real_aug", "run7_syn_noaug", "run8_syn_aug"]:
         p = f"checkpoints/{name}/best_model.pt"
         if os.path.exists(p):
             ckpt = torch.load(p, map_location="cpu", weights_only=True)
             log(f"  {name:20s}  val_acc={ckpt['val_acc']:.4f}  epoch={ckpt['epoch']}")
-        else:
-            log(f"  {name:20s}  FAILED")
 
     total = time.time() - start
     log(f"\nTotal time: {total/3600:.1f}hr")
