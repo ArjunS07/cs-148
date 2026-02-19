@@ -1,16 +1,8 @@
 #!/usr/bin/env python3
-"""Ablation: augmentations x synthetic data.
-
-Hyperparameters match run4 exactly (except patience=20).
-
-Run 5: Real only,  no augmentations
-Run 6: Real only,  with augmentations
-Run 7: Real + syn, no augmentations
-Run 8: Real + syn, with augmentations
-
+"""Final run: real + synthetic data, with augmentations.
 Usage:
-    nohup python run_augment_comparison.py > augment_comparison.log 2>&1 &
-    tail -f augment_comparison.log
+    nohup python final_run.py > final_run.log 2>&1 &
+    tail -f final_run.log
 """
 
 import os

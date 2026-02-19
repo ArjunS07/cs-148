@@ -1,0 +1,69 @@
+\documentclass[11pt]{article}
+
+% Page geometry
+\usepackage[margin=1in]{geometry}
+
+% Typography
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+
+% Math
+\usepackage{amsmath,amssymb,amsthm}
+
+% Figures and tables
+\usepackage{graphicx}
+\usepackage{booktabs}
+% Figures and tables
+\usepackage{subcaption}
+\usepackage{float}
+
+% Algorithms
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% References and links
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[numbers]{natbib}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}{Definition}
+
+% Useful shortcuts
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\argmin}{\operatorname{argmin}}
+\newcommand{\argmax}{\operatorname{argmax}}
+
+\renewcommand{\abstractname}{Summary}
+
+\usepackage{xcolor}
+
+% Make blockquotes italic and gray with a line at the end
+\let\oldquote\quote
+\let\endoldquote\endquote
+\renewenvironment{quote}{\oldquote\itshape\color{gray}}{\par\noindent\rule{\linewidth}{0.4pt}\endoldquote}
+
+
+\title{Augmentation is all you need: ResNet-18 for adversarial digit classification}
+\author{Arjun Sharma\\
+\texttt{asharma3@caltech.edu}}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    
+\end{abstract}
+
+
+\section{Introduction}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

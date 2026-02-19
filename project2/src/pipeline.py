@@ -1,7 +1,4 @@
 """HF pipeline
-Usage:
-    python pipeline.py --checkpoint checkpoints/best_model.pt --save pipeline-cnn.pt
-    python pipeline.py --checkpoint checkpoints/best_model.pt --push --username YOUR_USERNAME --token YOUR_TOKEN
 """
 
 import argparse
@@ -60,11 +57,13 @@ class DigitClassifierPipeline(nn.Module):
     def push_to_hub(
         self,
         token: str,
-        repo_id: str = "ee148a-project",
-        filename: str = "pipeline-cnn.pt",
+        hf_info: dict,
     ):
         import os
         from huggingface_hub import HfApi
+
+        filename = hf_info['filename']
+        repo_id = f"{hf_info['username']}/{hf_info['repo_name']}"
 
         local_path = f"temp_{filename}"
         self.save_pipeline_local(local_path)
@@ -117,23 +116,56 @@ def load_pipeline(checkpoint_path: str, model_name: str = "resnet18",
     return pipeline
 
 
+def save_and_export(
+    pipeline: DigitClassifierPipeline,
+    hf_info: dict,
+):
+    try:
+        success = pipeline.push_to_hub(
+            token=hf_info['token'],
+            hf_info=hf_info,
+        )
+        if success:
+            import json
+            with open('submission.json', 'w') as f:
+                json.dump(hf_info, f, indent=4)
+            print("Saved json to submission.json")
+            return hf_info
+        else:
+            print("Failed to push pipeline to Hugging Face Hub.")
+            return None
+    except Exception as e:
+        print(f"Exception: {e}")
+
+
+USERNAME = "arjuns07"
+REPO_NAME = "ee148a-project"
+FILENAME = "pipeline-cnn.pt"
+
+
 def main():
     parser = argparse.ArgumentParser(description="Build & export HF pipeline")
     parser.add_argument("--checkpoint", type=str, required=True)
-    parser.add_argument("--save", type=str, default="pipeline-cnn.pt")
     parser.add_argument("--push", action="store_true")
-    parser.add_argument("--username", type=str, default="")
+    parser.add_argument("--username", type=str, default=USERNAME)
     parser.add_argument("--token", type=str, default="")
     args = parser.parse_args()
 
     pipeline = load_pipeline(args.checkpoint)
+    hf_info = {
+        "username": args.username,
+        "repo_name": REPO_NAME,
+        "filename": FILENAME,
+        "checkpoint": args.checkpoint,
+        "token": args.token,
+    }
 
     if args.push and args.username and args.token:
-        repo_id = f"{args.username}/ee148a-project"
-        pipeline.push_to_hub(token=args.token, repo_id=repo_id, filename=args.save)
+        pipeline.push_to_hub(token=args.token, hf_info=hf_info)
+        save_and_export(pipeline, hf_info)
     else:
-        pipeline.save_pipeline_local(args.save)
-        print(f"Saved pipeline to {args.save}")
+        pipeline.save_pipeline_local(FILENAME)
+        print(f"Saved pipeline to {FILENAME}")
 
 
 if __name__ == "__main__":

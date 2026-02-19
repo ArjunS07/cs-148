@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Ablation: augmentations x synthetic data.
-
-Hyperparameters match run4 exactly (except patience=20).
-
-Usage:
+"""Ablation: augmentations and synthetic data.
     nohup python run_augment_comparison.py > augment_comparison.log 2>&1 &
     tail -f augment_comparison.log
 """
