@@ -3,11 +3,6 @@
 
 Hyperparameters match run4 exactly (except patience=20).
 
-Run 5: Real only,  no augmentations
-Run 6: Real only,  with augmentations
-Run 7: Real + syn, no augmentations
-Run 8: Real + syn, with augmentations
-
 Usage:
     nohup python run_augment_comparison.py > augment_comparison.log 2>&1 &
     tail -f augment_comparison.log
@@ -26,10 +21,10 @@ def log(msg: str):
 
 
 def run_training(name: str, extra_args: list[str]) -> str:
-    save_dir = f"checkpoints/{name}"
+    save_dir = f"../checkpoints/{name}"
     cmd = [
         sys.executable, "train.py",
-        "--data-dir", "data/dataset",
+        "--data-dir", "../data/dataset",
         "--save-dir", save_dir,
     ] + extra_args
 
@@ -64,35 +59,38 @@ BASE_ARGS = [
     "--mixup-alpha", "0.2",
     "--mix-prob", "0.3",
     "--img-size", "128",
-    "--patience", "50",
+    "--patience", "20",
 ]
 
 
 def main():
     start = time.time()
-    
-    log("\n--- Run 9: Real + 6000 synthetic, with augmentations ---")
-    run_training("run9_final_6k", BASE_ARGS + [
-        "--synthetic-n", "6000",
+    log("\n--- Run 5: Real only, no augmentations ---")
+    run_training("run5_real_noaug", BASE_ARGS + [
+        "--synthetic-n", "0", "--no-augment",
     ])
 
-    log("\n--- Run 10: Real + 9000 synthetic, with augmentations ---")
-    run_training("run10_final_9k", BASE_ARGS + [
-        "--synthetic-n", "9000",
+    log("\n--- Run 6: Real only, with augmentations ---")
+    run_training("run6_real_aug", BASE_ARGS + [
+        "--synthetic-n", "0",
     ])
 
-    # Summary
-    log("\n" + "=" * 60)
-    log("SUMMARY")
-    log("=" * 60)
+    log("\n--- Run 7: Real + synthetic, no augmentations ---")
+    run_training("run7_syn_noaug", BASE_ARGS + [
+        "--synthetic-n", "3000", "--no-augment",
+    ])
+
+    log("\n--- Run 8: Real + synthetic, with augmentations ---")
+    run_training("run8_syn_aug", BASE_ARGS + [
+        "--synthetic-n", "3000",
+    ])
+
     import torch
-    for name in ["run9_final_6k", "run10_final_9k"]:
-        p = f"checkpoints/{name}/best_model.pt"
+    for name in ["run5_real_noaug", "run6_real_aug", "run7_syn_noaug", "run8_syn_aug"]:
+        p = f"../checkpoints/{name}/best_model.pt"
         if os.path.exists(p):
             ckpt = torch.load(p, map_location="cpu", weights_only=True)
             log(f"  {name:20s}  val_acc={ckpt['val_acc']:.4f}  epoch={ckpt['epoch']}")
-        else:
-            log(f"  {name:20s}  FAILED")
 
     total = time.time() - start
     log(f"\nTotal time: {total/3600:.1f}hr")

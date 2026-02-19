@@ -103,7 +103,7 @@ def main(out_dir=None, data_dir=None):
     if out_dir is None:
         out_dir = OUT_DIR
     if data_dir is None:
-        data_dir = "data/dataset"
+        data_dir = "../data/dataset"
     os.makedirs(out_dir, exist_ok=True)
 
     samples = load_sample_pil_images(data_dir, N_EXAMPLES)

@@ -280,7 +280,7 @@ def train(args):
     train_files, val_files = stratified_split(
         args.data_dir, val_fraction=args.val_fraction, seed=args.seed
     )
-    print(f"Data: {len(train_files)} train, {len(val_files)} val", flush=True)
+    print(f"../data: {len(train_files)} train, {len(val_files)} val", flush=True)
 
     # Model
     model_kwargs = {}
@@ -504,8 +504,8 @@ def train(args):
 
 def main():
     parser = argparse.ArgumentParser(description="Train ResNet18 on corrupted MNIST data")
-    parser.add_argument("--data-dir", type=str, default="data/dataset")
-    parser.add_argument("--save-dir", type=str, default="checkpoints")
+    parser.add_argument("--data-dir", type=str, default="../data/dataset")
+    parser.add_argument("--save-dir", type=str, default="../checkpoints")
     parser.add_argument("--epochs", type=int, default=150)
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--lr", type=float, default=2e-3)

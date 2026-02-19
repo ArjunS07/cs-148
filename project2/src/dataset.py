@@ -258,7 +258,7 @@ def stratified_split(
 
 
 if __name__ == "__main__":
-    data_dir = "data/dataset"
+    data_dir = "../data/dataset"
 
     train_files, val_files = stratified_split(data_dir)
     print(f"Train: {len(train_files)}, Val: {len(val_files)}")

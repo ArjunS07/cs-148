@@ -158,7 +158,7 @@ def plot_sources_overlay(all_coords: dict[str, np.ndarray],
                    s=12, alpha=0.5, marker=SOURCE_MARKERS[source])
 
     ax.legend(markerscale=2)
-    ax.set_title(f"Data Sources Overlay ({method.upper()})")
+    ax.set_title(f"../data Sources Overlay ({method.upper()})")
     ax.set_xlabel(f"{method.upper()} 1")
     ax.set_ylabel(f"{method.upper()} 2")
     ax.grid(True, alpha=0.2)
@@ -252,7 +252,7 @@ def main():
     parser.add_argument("checkpoint", type=str, help="Path to best_model.pt")
     parser.add_argument("--model", type=str, default="resnet18",
                         choices=["resnet18"])
-    parser.add_argument("--data-dir", type=str, default="data/dataset")
+    parser.add_argument("--data-dir", type=str, default="../data/dataset")
     parser.add_argument("--out-dir", type=str, default=None)
     parser.add_argument("--img-size", type=int, default=128)
     parser.add_argument("--method", type=str, default="pca",

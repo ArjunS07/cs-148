@@ -228,7 +228,7 @@ def main():
     parser.add_argument("checkpoint", type=str, help="Path to best_model.pt")
     parser.add_argument("--model", type=str, default="resnet18",
                         choices=["resnet18"])
-    parser.add_argument("--data-dir", type=str, default="data/dataset")
+    parser.add_argument("--data-dir", type=str, default="../data/dataset")
     parser.add_argument("--out-dir", type=str, default=None,
                         help="Output directory (default: same as checkpoint)")
     parser.add_argument("--img-size", type=int, default=128)
