@@ -195,12 +195,10 @@ def train_one_epoch(
 
     for batch_idx, (images, labels, sources) in enumerate(loader):
         images = images.to(device, non_blocking=True)
-        # Keep CPU copies — MPS can corrupt long-lived int tensors
         labels_cpu = labels.clone()
         sources_cpu = sources.clone()
         labels = labels.to(device, non_blocking=True)
 
-        # Apply MixUp with probability mix_prob
         use_soft_labels = False
         if np.random.random() < mix_prob:
             images, soft_labels = mixup_batch(images, labels, alpha=mixup_alpha)

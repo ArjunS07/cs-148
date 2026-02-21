@@ -62,19 +62,19 @@ class ResNet18(nn.Module):
 
         # 4 stages, each with 2 BasicBlocks
         # 32x32 -> 32x32 -> 16x16 -> 8x8 -> 4x4
-        self.layer1 = nn.Sequential(
+        self.block1 = nn.Sequential(
             BasicBlock(w, w, stride=1),
             BasicBlock(w, w, stride=1),
         )
-        self.layer2 = nn.Sequential(
+        self.block2 = nn.Sequential(
             BasicBlock(w, w * 2, stride=2),
             BasicBlock(w * 2, w * 2, stride=1),
         )
-        self.layer3 = nn.Sequential(
+        self.block3 = nn.Sequential(
             BasicBlock(w * 2, w * 4, stride=2),
             BasicBlock(w * 4, w * 4, stride=1),
         )
-        self.layer4 = nn.Sequential(
+        self.block4 = nn.Sequential(
             BasicBlock(w * 4, w * 8, stride=2),
             BasicBlock(w * 8, w * 8, stride=1),
         )
@@ -98,10 +98,10 @@ class ResNet18(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.stem(x)
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
+        x = self.block1(x)
+        x = self.block2(x)
+        x = self.block3(x)
+        x = self.block4(x)
         x = self.avgpool(x)
         x = torch.flatten(x, 1)
         x = self.dropout(x)
@@ -124,6 +124,7 @@ def count_parameters(model: nn.Module) -> int:
 if __name__ == "__main__":
     for name in ["resnet18"]:
         model = build_model(name)
+        print(model)
         n = count_parameters(model)
         print(f"{name}: {n} params")
         for size in [96, 128]:

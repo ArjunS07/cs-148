@@ -12,7 +12,6 @@ from PIL import Image, ImageDraw, ImageFilter
 
 
 def get_train_transform(img_size: int = 128):
-    """Full augmentation pipeline — no horizontal flips (digit identity)."""
     return transforms.Compose([
         transforms.RandomResizedCrop(img_size, scale=(0.7, 1.0), ratio=(0.75, 1.33)),
         transforms.RandomRotation(20),
@@ -41,7 +40,6 @@ def get_val_transform(img_size: int = 128):
 
 class ProvidedDigitDataset(Dataset):
     """
-    Expects flat directory with files named: {id}_img{num}_label{digit}.jpg
     Returns (image, label, source) where source=0 means real.
     """
 
@@ -89,7 +87,6 @@ def _random_background_crop(
     path = random.choice(bg_paths)
     bg = Image.open(path).convert("RGB")
     w, h = bg.size
-    # ensure we can crop
     if w < size or h < size:
         bg = bg.resize((max(w, size), max(h, size)), Image.BILINEAR)
         w, h = bg.size
@@ -100,13 +97,11 @@ def _random_background_crop(
 
 def _render_mnist_digit(mnist_img: Image.Image, size: int = 128) -> Image.Image:
     """Render an MNIST digit with random color/thickness onto a transparent canvas."""
-    # Resize MNIST 28x28 -> target with some padding variation
     pad = random.randint(10, 30)
     inner = size - 2 * pad
     digit = mnist_img.resize((inner, inner), Image.BILINEAR)
     digit_np = np.array(digit)
 
-    # Random color for the digit stroke
     r = random.randint(50, 255)
     g = random.randint(50, 255)
     b = random.randint(50, 255)
@@ -119,7 +114,6 @@ def _render_mnist_digit(mnist_img: Image.Image, size: int = 128) -> Image.Image:
             if alpha > 20:
                 rgba.putpixel((x + pad, y + pad), (r, g, b, alpha))
 
-    # Slight elastic deformation via random affine
     angle = random.uniform(-10, 10)
     rgba = rgba.rotate(angle, resample=Image.BILINEAR, expand=False)
 
@@ -262,13 +256,19 @@ if __name__ == "__main__":
 
     train_files, val_files = stratified_split(data_dir)
     print(f"Train: {len(train_files)}, Val: {len(val_files)}")
+    # print the number of digits in each class
+    from collections import Counter
+    train_labels = [int(f.split("_")[-1].replace(".jpg", "").replace("label", "")) for f in train_files]
+    val_labels = [int(f.split("_")[-1].replace(".jpg", "").replace("label", "")) for f in val_files]
+    print("Train class distribution:", Counter(train_labels))
+    print("Val class distribution:", Counter(val_labels))
 
     ds = ProvidedDigitDataset(data_dir, transform=get_val_transform(128), file_list=train_files[:100])
-    img, label = ds[0]
+    img, label, _ = ds[0]
     print(f"Real image shape: {img.shape}, label: {label}")
 
     syn = SyntheticMNISTDataset(data_dir, transform=get_val_transform(128), num_samples=50)
-    img, label = syn[0]
+    img, label, _ = syn[0]
     print(f"Synthetic image shape: {img.shape}, label: {label}")
 
     combined = CombinedDataset(ds, syn)
