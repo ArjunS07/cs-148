@@ -85,6 +85,7 @@
 
     I include all components required by the project instructions, but swap the order of the first two parts: in \autoref{sec:data-loading}, I describe the data processing steps, particularly augmentations; in \autoref{sec:1-training-setup}, I provide a high-level overview of the basic training setup.
 
+    My final notebook is: \href{https://drive.google.com/file/d/1KzDG4alqDO7AiCok8-jheFtcmccldoUo/view?usp=sharing}{https://drive.google.com/file/d/1KzDG4alqDO7AiCok8-jheFtcmccldoUo/view?usp=sharing}.
 
 \end{abstract}
 
@@ -240,23 +241,25 @@ Examples of the data augmentation pipeline, mixup, and synthetic data are presen
 \end{figure}
 
 \begin{figure}[p]
-\begin{minipage}{0.75\textwidth}
-\includegraphics[width=\linewidth]{figs/augmentation_examples/11_mixup.png}
-\end{minipage}\hfill
-\begin{minipage}{0.23\textwidth}
-\caption{MixUp augmentation.}
-\end{minipage}
-\label{fig:mixup}
+    \begin{minipage}{0.75\textwidth}
+        \includegraphics[width=\linewidth]{figs/augmentation_examples/11_mixup.png}
+    \end{minipage}\hfill
+    \begin{minipage}{0.23\textwidth}
+        % Optionally add a description or leave blank for spacing
+    \end{minipage}
+    \caption{MixUp augmentation.}
+    \label{fig:mixup}
 \end{figure}
 
 \begin{figure}[p]
-\begin{minipage}{0.75\textwidth}
-\includegraphics[width=\linewidth]{figs/augmentation_examples/12_synthetic_mnist.png}
-\end{minipage}\hfill
-\begin{minipage}{0.23\textwidth}
-\caption{Synthetic data. Most, but not all, of these are decent samples.}
-\end{minipage}
-\label{fig:synthetic}
+    \begin{minipage}{0.75\textwidth}
+        \includegraphics[width=\linewidth]{figs/augmentation_examples/12_synthetic_mnist.png}
+    \end{minipage}\hfill
+    \begin{minipage}{0.23\textwidth}
+        % Optionally add a description or leave blank for spacing
+    \end{minipage}
+    \caption{Synthetic data. Most, but not all, of these are decent samples.}
+    \label{fig:synthetic}
 \end{figure}
 
 \textbf{Dataloader implementation}. I subclass the PyTorch `Dataset' type to create a \texttt{ProvidedImageDataset} (MNIST-W), \texttt{SyntheticImageDataset} and \texttt{CombinedImageDataset}. The first one applies the transformations in \autoref{tab:augmentations} to an image loaded from a provided path (randomly sampled from the result of the stratified split function) and returns the image and its label. The synthetic dataset samples a random image from the original MNIST (with replacement) and applies the described transformation to produce a new image. The same transformations are applied. The validation dataset is instantiated using the \texttt{ProvidedImageDataset} class, but with a different set of paths provided.
@@ -547,7 +550,7 @@ Would it be a good idea to try to introduce something like standard MNIST or wou
 \end{enumerate}
 
 
-\textit{I then heavily edited the provided markdown file - I culled a lot of bad ideas and edited many of the suggested lists of augmentations and hyperparameters. I switched it from using a suggested ConvNext architecture to ResNet architecture, and implemented that in code. }
+\textit{I then heavily edited the provided markdown file - I culled a lot of bad or unnecessary ideas and edited many of the suggested lists of augmentations and hyperparameters. I switched it from using a suggested ConvNext architecture to ResNet architecture, and implemented that in code. }
 
 Prompts for Claude code:
     \begin{enumerate}
@@ -624,6 +627,7 @@ Prompts for Claude code:
   3e-4 and 1e-4) as well as over 3 batch size (32, 64, 128).
   \item Wait, look at grid\_search.log - it didn't do anything. It expects these checkpoints to already exist! I want to run these experiemnts.
   \item Yeah, I refactored it - all code is now in src/, checkpoints are at the same level as src, data is at the same level as src.
+  \item Check if colab training will work
     \end{enumerate}
 
 
