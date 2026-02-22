@@ -1,0 +1,191 @@
+\documentclass{article}
+\usepackage[a4paper, margin=0.5in]{geometry}
+
+% Document Information
+\title{CS 148a Problem Set 3}
+\date{}
+
+% ================ Core Packages ================
+% Math and Symbol Packages
+\usepackage{amsmath, amsfonts, amssymb, amstext, amscd, amsthm}
+\usepackage{centernot}
+\allowdisplaybreaks
+% Document Structure and Formatting
+\usepackage{bookmark}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{blindtext}
+\usepackage{subfiles}
+\usepackage{xparse}
+\usepackage[skip=6pt plus1pt, indent=0pt]{parskip}
+\usepackage{pdfpages}
+\usepackage{float}
+
+% ================ Theorem Environments ================
+% Color and Box Packages
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\tcbuselibrary{theorems}
+\usepackage{mdframed}
+\usepackage{environ}
+
+% Color Definitions
+\definecolor{definitiongray}{RGB}{240,240,240}
+\definecolor{definitionborder}{RGB}{120,120,120}
+\definecolor{resultblue}{RGB}{240,245,255}
+\definecolor{resultborder}{RGB}{68,138,255}
+\definecolor{theoremred}{RGB}{255,240,240}
+\definecolor{theoremborder}{RGB}{255,102,102}
+
+% Box Styling
+\tcbset{
+    enhanced,
+    sharp corners,
+    boxrule=0.4pt,
+    top=8pt,
+    bottom=8pt,
+    left=8pt,
+    right=8pt,
+    fonttitle=\bfseries,
+    coltitle=black,
+    colback=white,
+    colframe=black,
+    attach boxed title to top left={xshift=0.5cm, yshift*=-\tcboxedtitleheight/2},
+    boxed title style={
+        sharp corners,
+        size=small,
+        colback=white,
+        colframe=black
+    }
+}
+
+% Theorem-like Environments
+% Create theorem counter
+\newcounter{theorem}[section]
+\renewcommand{\thetheorem}{\thesection.\arabic{theorem}}
+
+% Box Definitions with fixed numbering
+\newtcolorbox{definitionbox}[2][]{
+    title={Definition \thetheorem: #2},
+    colback=definitiongray,
+    colframe=definitionborder,
+    #1
+}
+
+\newtcolorbox{resultbox}[2][]{
+    title={Result \thetheorem: #2},
+    colback=resultblue,
+    colframe=resultborder,
+    #1
+}
+
+\newtcolorbox{theorembox}[2][]{
+    title={Theorem \thetheorem: #2},
+    colback=theoremred,
+    colframe=theoremborder,
+    #1
+}
+
+% Environment Definitions
+\newenvironment{definition}[2][]
+    {\refstepcounter{theorem}\begin{definitionbox}[#1]{#2}}
+    {\end{definitionbox}}
+
+\newenvironment{result}[1][]
+    {\refstepcounter{theorem}\begin{resultbox}{#1}}
+    {\end{resultbox}}
+
+\newenvironment{theorem}[1][]
+    {\refstepcounter{theorem}\begin{theorembox}{#1}}
+    {\end{theorembox}}
+
+% Package for more flexible spacing control
+\usepackage{mdframed}
+\usepackage{environ}
+
+% Define a very light green for the background
+\definecolor{propositionbg}{RGB}{245, 250, 245}    % Very light green background
+\definecolor{propositionframe}{RGB}{220, 235, 220}  % Slightly darker green for frame
+
+% Style for practice propositions
+\mdfdefinestyle{propositionstyle}{
+    linewidth=0.5pt,          
+    topline=true,             
+    bottomline=true,
+    leftline=false,
+    rightline=false,
+    backgroundcolor=propositionbg,    
+    linecolor=propositionframe,
+    innertopmargin=10pt,      
+    innerbottommargin=10pt,
+    innerleftmargin=12pt,     
+    innerrightmargin=12pt,
+    skipabove=1.2em,          
+    skipbelow=1.2em
+}
+
+% Counter for propositions
+\newcounter{proposition}[section]
+\renewcommand{\theproposition}{\thesection.\arabic{proposition}}
+
+% New proposition environment
+\NewEnviron{proposition}[3]{
+    \refstepcounter{proposition}
+    \smallskip
+    \begin{mdframed}[style=propositionstyle]
+        \textbf{#1}. \textit{#2}
+    \vspace{-0.25cm}
+    \begin{proof}
+        #3
+    \end{proof}
+    \end{mdframed}
+}
+
+% ================ Custom Commands ================
+% Math Commands
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\cnot}{\centernot}
+\newcommand{\notimplies}{\cnot\implies}
+\newcommand{\llim}{\lim \limits}
+\newcommand{\fin}[2]{~\forall #1 \in #2}
+\newcommand{\st}{\text{ s.t. }}
+\newcommand{\spn}{\text{span}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\ev}{\mathbb{E}}
+\newcommand{\loss}{\mathcal{L}}
+\newenvironment{amatrix}[1]{%
+  \left(\begin{array}{@{}*{#1}{c}|c@{}}
+}{%
+  \end{array}\right)
+}
+
+% partial derivatives
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\pdd}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\pddm}[3]{\frac{\partial^2 #1}{\partial #2 \partial #3}}
+
+\newcommand{\argmin}{\arg\min}
+\newcommand{\argmax}{\arg\max}
+
+% ================ List Formatting ================
+\renewcommand{\labelenumii}{\arabic{enumii}.}
+\renewcommand{\labelenumiii}{\arabic{enumiii}}
+
+% ================ Reference Formatting ================
+\newcommand{\resultautorefname}{result}
+\begin{document}
+\maketitle
+
+\newpage
+
+\section*{Question 1}
+
+
+\end{document}
