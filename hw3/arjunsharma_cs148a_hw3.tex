@@ -175,6 +175,7 @@
 \newcommand{\argmax}{\arg\max}
 
 % ================ List Formatting ================
+\usepackage{enumitem}
 \renewcommand{\labelenumii}{\arabic{enumii}.}
 \renewcommand{\labelenumiii}{\arabic{enumiii}}
 
@@ -186,6 +187,122 @@
 \newpage
 
 \section*{Question 1}
+\begin{itemize}
+    \item[(e)] Skip connecrtions and vanishing gradients \begin{enumerate}
+        \item Using the chain rule, \begin{align*}
+            \pd{\loss}{w^{(1)}} &= \pd{\loss}{h^{(L)}} \left[\prod_{l=2}^{L} \pd{h^{(l)}}{h^{(l-1)}} \right] \pd{h^{(1)}}{w^{(1)}}
+        \end{align*}
+        \item \begin{align*}
+            \pd{h^{(l)}}{h^{(l-1)}} &= w^{(l)}  \sigma'(w^{(l)}h^{(l-1)} + b^{(l)})
+        \end{align*}
+        For the values given, this is \begin{align*}
+            0.01 \cdot \sigma'(0.1\cdot 0.1 + 0) = 0.01 \cdot 1 = 0.01
+        \end{align*}
+        \item With $\left| \pd{h^{(l)}}{h^{(l-1)}}  \right| < 1 $, the product present in the first part becomes exponentially smaller. In the limiting case where $L \to \infty$, the product approaches 0. We have \textbf{vanishing gradients}.
+        
+        This means that the gradient received by the weights (and biases) in the first layer approach 0, so signal does not backpropagate through the network for weight updates. 
+
+        With $\left| \pd{h^{(l)}}{h^{(l-1)}}  \right| > 1$, the product present in the second part becomes exponentially larger, and approaches $\infty$ in the limiting case as $L \to \infty$. Gradients explode in this case, causing weight updates to be very large and training to diverge. 
+
+        \item \begin{align*}
+            \pd{h^{(l)}}{h^{(l-1)}} &= w^{(l)}  \sigma'(w^{(l)}h^{(l-1)} + b^{(l)}) + 1
+        \end{align*}
+        This lower bounds gradients at 1. Even if $w^{(l)} \sigma'(\cdot)$ is very small, the $+1$ term ensures that the product in the chain rule never collapses to 0. This means that gradients will not vanish as we backpropagate through the network, and signal will be propagated back to the first layer.
+    \end{enumerate}
+\end{itemize}
+
+\newpage
+\section*{Question 2}
+\begin{itemize}
+    \item[(b)] 
+        \begin{enumerate}[label=(\roman*)]
+            \item The shapes are: \begin{itemize}
+                \item $x_t$: $D \times B$
+                \item $\hat{y}_t$: $D \times B$.
+                \item $h_t$: $H \times B$
+                \item $W_{xh}$: $H \times D$
+                \item $W_{hh}$: $H \times H$
+                \item $W_{hy}$: $D \times H$
+                \item $b_h$: $H \times 1$
+                \item $b_y$: $D \times 1$
+            \end{itemize}
+            \item \begin{align*}
+                % \pd{\loss}{W_{hy}} &= \pd{\loss}{\hat{y}_t} \pd{\hat{y}_t}{h_T} \left[\prod_{t=2}^{T-1} \pd{h_t}{h_{t-1}}  \right] \pd{h_1}{}
+                \pd{\loss}{W_{hy}} &= \sum\limits_{t=1}^T \pd{\loss_t}{\hat{y}_t} h_t^T\\
+                \pd{\loss}{b_y} &= \sum\limits_{t=1}^T \sum\limits_{b=1}^B \pd{\loss_t}{\hat{y}_t^{(b)}}
+            \end{align*}
+
+            \item \begin{align*}
+                \pd{f}{\beta} &= \sum_{i=1}^n \pd{f}{\alpha_i} \pd{\alpha_i}{\beta}
+            \end{align*}
+
+            \item \begin{align*}
+                \pd{h_t}{W_{hh}} &= \sigma'(W_{hh} h_{t-1} + W_{xh} x_t + b_h) \cdot h_{t-1} + \sum_{i=1}^{t-1} \pd{h_t}{h_i} \pd{h_i}{W_{hh}}\\
+                &= \sigma'(W_{hh} h_{t-1} + W_{xh} x_t + b_h) \cdot h_{t-1} + \sum_{i=1}^{t-1} \left[\prod_{j=i+1}^t \pd{h_j}{h_{j-1}} \right] \pd{h_i}{W_{hh}}
+            \end{align*}
+
+            \item \begin{align*}
+                \pd{\loss}{W_{hh}} &= \sum\limits_{t=1}^T \pd{\loss_t}{h_t} \pd{h_t}{W_{hh}}\\
+                &= \sum\limits_{t=1}^T \pd{\loss}{h_t} \sum\limits_{i=1}^T \left[
+                    \prod_{j=i+1}^t \pd{h_j}{h_{j-1}}
+                \right] \pd{h_i}{W_{hh}}
+            \end{align*}
+
+            \item \begin{align*}
+                \pd{\loss}{W_{xh}} &= \sum\limits_{t=1}^T \pd{\loss_t}{h_t} \pd{h_t}{W_{xh}}\\
+                &= \sum\limits_{t=1}^T \pd{\loss_t}{h_t} \sum\limits_{i=1}^T \left[ \prod_{j=i+1}^t \pd{h_j}{h_{j-1}} \right] \pd{h_i}{W_{xh}}
+            \end{align*}
+
+            \item The product term $\prod_{j=i+1}^t \pd{h_j}{h_{j-1}} $ will cause vanishing or exploding gradients, because it is the product of $t - i$ jacobians that will shrink to zero or grow unboundedly (depending on the eigenvalues of the Jacobians) when the sequence is sufficieently large.
+        \end{enumerate}
+
+        \item \begin{enumerate}[label=(\roman*)]
+            \item $\tilde{C}_t$ is candidate memory, i.e., new information that could be added to the current memory based on the current input and hidden state and $I_t$ is the input gate, which acts as a filter on this candidate memory, and contains values between $0$ and $1$ which select how much of each entry in that candidate memory should be let through. The elementwise product $\tilde{C}_t \odot I_t$ is the new information to be written to long-term memory.
+            
+            The forget gate $F_t$ is used to selectively `forget' (remove from) old long-term memory, so adding $\tilde{C}_t \odot I_t$ to $F_t \odot C_{t-1}$ allows us to combine relevant past information with new relevant information to get updated long-term memory.
+
+            \item $\tanh$ first squashes values in $C_t$ to the range $[-1, 1]$, which normalizes it and allows us to use it as a hidden state representation. $O_t$ acts as a gate that selects which parts of this long-term memory are actually relevant to expose as the hidden state, such that the LSTM can maintain a rich long-term memory $C_t$ while only using the currently relevant parts $h_t$ at a particular output.
+        \end{enumerate}
+\end{itemize}
+
+\newpage
+\section*{Question 3}
+\begin{itemize}
+    \item[(a)] \begin{enumerate}
+        \item \begin{align*}
+            \text{Attention}(x) &= \text{softmax} \left( \frac{Q K^T}{\sqrt{d_k}} \right) \cdot V\\
+             &= \text{softmax} \left( \frac{(x \cdot W_q) (x \cdot W_k)^T}{\sqrt{d_k}} \right) \cdot (x \cdot W_v)\\
+        \end{align*}
+        
+        The shapes are:
+        \begin{itemize}
+            \item $x$: $T \times D$
+            \item $W_q$: $D \times d_k$
+            \item $W_k$: $D \times d_k$ ($Q$ and $K$ must have the same dimension for the dot product between vectors in these spaces to be well-defined)
+            \item $W_v$: $D \times d_v$
+        \end{itemize}
+        The shape of the output is $T \times d_v$, i.e., the dimension of $x \cdot W_v$. 
+
+        \item For $T = 1$, the dot product will be
+        \begin{align*}
+            Q \cdot K^T &= \sum_{i=1}^{d_k} q_i k_i
+        \end{align*}
+
+        where $q_i, k_i \sim \mathcal{N}(0, 1)$ independently. Since the product of two independent standard normals has variance 1, each product $q_i k_i$ will have mean 0 and variance 1.
+
+        The central limit theorem states that if $X_1, X_2, \cdot X_n$ are random variables with mean $\mu$ and variance $\sigma^2$, then as $n \to \infty$, $\sum_{i=1}^n X_i \rightarrow \mathcal{N}(n \mu, n \sigma^2)$. So applying the theorem here gives us that $Q \cdot K^T = \sum\limits_{i=1}^{d_k} q_i k_i \sim \mathcal{N}(0, d_k)$ for large $d_k$. 
+
+        To ensure that this dot product has unit variance, we need to divide by the variance $\sqrt{d_k}$. 
+
+        \item \begin{align*}
+            \text{head}_i &= \text{softmax}\left( \frac{(xW_q^i (xW_k^i)^T)}{\sqrt{d_k}}\right) \cdot (xW_v^i)\\
+            \text{MultiHead}(x) &= \text{Concat}(\text{head}_1, \cdots \text{head}_h) \cdot W_O
+        \end{align*}
+        where $W_k^i$ has shape $D \times d_K$, $W_q^i$ has shape $D \times D_k$, $W_v$ has shape $D \times d_v$, and $W_o$ has shape $h d_v \times D$ (to project outputs back to $T \times D$).
+
+    \end{enumerate}
+
+\end{itemize}
 
 
 \end{document}
