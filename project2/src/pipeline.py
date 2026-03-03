@@ -11,11 +11,7 @@ from model import build_model
 
 
 class DigitClassifierPipeline(nn.Module):
-    """
-    Accepts variable-resolution RGB input, resizes to 128x128, normalizes,
-    and returns predicted class indices.
-    """
-
+    
     def __init__(
         self,
         model: nn.Module,
@@ -42,8 +38,9 @@ class DigitClassifierPipeline(nn.Module):
         self.input_channels = input_channels
 
     def forward(self, images: torch.Tensor) -> torch.Tensor:
-        x = self.preprocess_layers(images)
-        logits = self.model(x)
+        # x = self.preprocess_layers(images)
+        # logits = self.model(x)
+        logits = self.model(images)
         return torch.argmax(logits, dim=1)
 
     @torch.jit.ignore
@@ -86,7 +83,6 @@ class DigitClassifierPipeline(nn.Module):
 
     @torch.jit.ignore
     def run(self, pil_images: list):
-        """Run pipeline on a list of PIL images. Returns list of predicted class indices."""
         tensor_list = [
             transforms.ToTensor()(img.convert("RGB"))
             for img in pil_images
@@ -100,7 +96,6 @@ class DigitClassifierPipeline(nn.Module):
 
 def load_pipeline(checkpoint_path: str, model_name: str = "resnet18",
                   device: str = "cpu") -> DigitClassifierPipeline:
-    """Load a trained checkpoint into the submission pipeline."""
     model = build_model(model_name)
     ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
     model.load_state_dict(ckpt["model_state_dict"])
@@ -112,7 +107,6 @@ def load_pipeline(checkpoint_path: str, model_name: str = "resnet18",
         input_channels=3,
         device=device,
     )
-    print(f"Loaded checkpoint from epoch {ckpt['epoch']} (val_acc={ckpt['val_acc']:.4f})")
     return pipeline
 
 
@@ -129,10 +123,9 @@ def save_and_export(
             import json
             with open('submission.json', 'w') as f:
                 json.dump(hf_info, f, indent=4)
-            print("Saved json to submission.json")
             return hf_info
         else:
-            print("Failed to push pipeline to Hugging Face Hub.")
+            print("Failed to push pipeline")
             return None
     except Exception as e:
         print(f"Exception: {e}")
