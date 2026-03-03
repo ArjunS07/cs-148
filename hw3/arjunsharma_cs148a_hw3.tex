@@ -209,6 +209,10 @@
         \end{align*}
         This lower bounds gradients at 1. Even if $w^{(l)} \sigma'(\cdot)$ is very small, the $+1$ term ensures that the product in the chain rule never collapses to 0. This means that gradients will not vanish as we backpropagate through the network, and signal will be propagated back to the first layer.
     \end{enumerate}
+    \item[(f)] \begin{enumerate}
+        \item ResNet56 (no short) has a much more complicated loss landscape than ResNet20 (no short), i.e., it has a significantly more sophisticated topology with many more local minima and maxima; this is due to the increased parameter space of the larger model
+        \item Resnet56 (short) has a smoother loss landscape than ResNet 56 (no short); intuitively, this may be because the introduction of residual connections means that adding more parameters around some minima at worst has no impact on performance, so there are fewer peaks and local minima which result from additional complexity in the network.
+    \end{enumerate}
 \end{itemize}
 
 \newpage
@@ -256,7 +260,7 @@
             \item The product term $\prod_{j=i+1}^t \pd{h_j}{h_{j-1}} $ will cause vanishing or exploding gradients, because it is the product of $t - i$ jacobians that will shrink to zero or grow unboundedly (depending on the eigenvalues of the Jacobians) when the sequence is sufficieently large.
         \end{enumerate}
 
-        \item \begin{enumerate}[label=(\roman*)]
+        \item[(c)] \begin{enumerate}[label=(\roman*)]
             \item $\tilde{C}_t$ is candidate memory, i.e., new information that could be added to the current memory based on the current input and hidden state and $I_t$ is the input gate, which acts as a filter on this candidate memory, and contains values between $0$ and $1$ which select how much of each entry in that candidate memory should be let through. The elementwise product $\tilde{C}_t \odot I_t$ is the new information to be written to long-term memory.
             
             The forget gate $F_t$ is used to selectively `forget' (remove from) old long-term memory, so adding $\tilde{C}_t \odot I_t$ to $F_t \odot C_{t-1}$ allows us to combine relevant past information with new relevant information to get updated long-term memory.
