@@ -139,7 +139,7 @@ def plot_errors_by_class(results, out_dir, max_per_class: int = 6):
                 e = errs[j]
                 img = denormalize(e["image"]).permute(1, 2, 0).numpy()
                 ax.imshow(img)
-                ax.set_title(f"→{e['pred']} ({e['confidence']:.2f})", fontsize=8,
+                ax.set_title(f"->{e['pred']} ({e['confidence']:.2f})", fontsize=8,
                              color="red")
 
     fig.suptitle("Misclassified Examples by True Class", fontsize=13)
@@ -175,7 +175,7 @@ def plot_error_pair_grid(results, out_dir, max_examples: int = 4):
             ax = axes[i][j] if max_examples > 1 else axes[i]
             ax.axis("off")
             if j == 0:
-                ax.set_ylabel(f"{true_c}→{pred_c}\n(n={len(errs)})",
+                ax.set_ylabel(f"{true_c}->{pred_c}\n(n={len(errs)})",
                               fontsize=9, rotation=0, labelpad=40, va="center")
                 ax.axis("on")
                 ax.set_xticks([])
@@ -188,7 +188,7 @@ def plot_error_pair_grid(results, out_dir, max_examples: int = 4):
                 ax.imshow(img)
                 ax.set_title(f"conf={e['confidence']:.2f}", fontsize=8)
 
-    fig.suptitle("Top Confusion Pairs (true→pred)", fontsize=13)
+    fig.suptitle("Top Confusion Pairs (true->pred)", fontsize=13)
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "confusion_pairs.png"), dpi=150)
     plt.close(fig)
