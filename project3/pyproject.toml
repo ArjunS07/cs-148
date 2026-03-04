@@ -1,0 +1,18 @@
+[project]
+name = "project3"
+version = "0.1.0"
+description = "CS 148 Project 3: Vision Transformer with distillation"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "gdown>=5.2.1",
+    "huggingface-hub>=1.4.1",
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.2",
+    "pandas>=3.0.0",
+    "pillow>=12.1.1",
+    "scikit-learn>=1.8.0",
+    "seaborn>=0.13.2",
+    "torch>=2.10.0",
+    "torchvision>=0.25.0",
+]
