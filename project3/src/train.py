@@ -358,6 +358,7 @@ def train(args):
 
     # Model
     model = build_model(
+        img_size=args.img_size,
         drop_path_rate=args.drop_path_rate,
         use_spt=args.use_spt,
         use_lsa=args.use_lsa,
@@ -544,6 +545,7 @@ def train(args):
         if os.path.exists(best_path):
             best_ckpt = torch.load(best_path, map_location="cpu", weights_only=False)
             best_model = build_model(
+                img_size=args.img_size,
                 drop_path_rate=args.drop_path_rate,
                 use_spt=args.use_spt,
                 use_lsa=args.use_lsa,
