@@ -368,6 +368,7 @@ def train(args):
     n_params = count_parameters(model)
     print(f"ViT: {n_params:,} params ({n_params/1e6:.2f}M)", flush=True)
     model = model.to(device)
+    model = torch.compile(model)
 
     # Resume from checkpoint if requested
     resume_ckpt = getattr(args, "resume_checkpoint", None)
@@ -652,7 +653,7 @@ def main():
 
     # Training
     parser.add_argument("--epochs", type=int, default=50)
-    parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=3e-4)
     parser.add_argument("--weight-decay", type=float, default=0.05)
     parser.add_argument("--warmup-epochs", type=int, default=5)
