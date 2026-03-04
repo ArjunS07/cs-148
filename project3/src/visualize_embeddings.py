@@ -31,10 +31,7 @@ from dataset import (
 sns.set_theme(
     style="whitegrid",
     palette="deep",
-    font="serif",
     rc={
-        "text.usetex": True,
-        "font.family": "serif",
         "axes.titlesize": 13,
         "axes.labelsize": 11,
         "legend.fontsize": 9,

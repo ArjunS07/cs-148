@@ -369,6 +369,14 @@ def train(args):
     print(f"ViT: {n_params:,} params ({n_params/1e6:.2f}M)", flush=True)
     model = model.to(device)
 
+    # Resume from checkpoint if requested
+    resume_ckpt = getattr(args, "resume_checkpoint", None)
+    _resume_data = None
+    if resume_ckpt and os.path.exists(resume_ckpt):
+        _resume_data = torch.load(resume_ckpt, map_location="cpu", weights_only=False)
+        model.load_state_dict(_resume_data["model_state_dict"])
+        print(f"Resumed model weights from {resume_ckpt}", flush=True)
+
     # Teacher
     teacher = None
     if args.distillation != "none":
@@ -455,8 +463,17 @@ def train(args):
     )
     print(f"Batches per epoch: {len(train_loader)} train, {len(val_loader)} val", flush=True)
 
+    # Restore optimizer/scheduler state if the checkpoint contains them
+    if _resume_data is not None:
+        if "optimizer_state_dict" in _resume_data:
+            optimizer.load_state_dict(_resume_data["optimizer_state_dict"])
+            print("Restored optimizer state.", flush=True)
+        if "scheduler_state_dict" in _resume_data:
+            scheduler.load_state_dict(_resume_data["scheduler_state_dict"])
+            print("Restored scheduler state.", flush=True)
+
     history: list[dict] = []
-    best_val_acc = 0.0
+    best_val_acc = _resume_data["val_acc"] if _resume_data and "val_acc" in _resume_data else 0.0
     best_val_loss = float("inf")
     patience_counter = 0
 
@@ -626,6 +643,10 @@ def main():
     # Data
     parser.add_argument("--data-dir", type=str, default="../data/dataset")
     parser.add_argument("--save-dir", type=str, default="../checkpoints/run")
+    parser.add_argument("--resume-checkpoint", type=str, default=None,
+                        help="Path to checkpoint to resume from. Use latest_checkpoint.pt "
+                             "to restore optimizer/scheduler state, or best_model.pt for "
+                             "weights only.")
     parser.add_argument("--val-fraction", type=float, default=0.15)
     parser.add_argument("--synthetic-n", type=int, default=3000)
 

@@ -14,12 +14,7 @@ import torchvision.transforms as T
 from PIL import Image
 from torchvision.utils import make_grid, save_image
 
-sns.set_theme(
-    style="whitegrid",
-    palette="deep",
-    font="serif",
-    rc={"text.usetex": True, "font.family": "serif"},
-)
+sns.set_theme(style="whitegrid", palette="deep")
 
 from dataset import (
     ProvidedDigitDataset,

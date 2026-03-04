@@ -22,8 +22,7 @@ from dataset import ProvidedDigitDataset, get_val_transform, stratified_split
 sns.set_theme(
     style="whitegrid",
     palette="deep",
-    font="serif",
-    rc={"text.usetex": True, "font.family": "serif", "axes.titlesize": 13, "axes.labelsize": 11},
+    rc={"axes.titlesize": 13, "axes.labelsize": 11},
 )
 
 IMAGENET_MEAN = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
