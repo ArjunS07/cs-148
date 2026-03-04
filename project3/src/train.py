@@ -295,6 +295,7 @@ def train_one_epoch(
             teacher_logits, distillation, tau, lambda_dist,
         )
         loss.backward()
+        nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
         optimizer.step()
 
         # Metrics: always use cls_logits vs ground truth (clean signal)
@@ -374,8 +375,24 @@ def train(args):
         teacher = load_teacher(args.teacher_path, device)
 
     # Optimizer + scheduler
+    # ViT training requires skipping weight decay on 1-D params (biases, LayerNorm
+    # weights/biases) and token/positional embeddings; applying wd to these decays
+    # away the spatial signal and prevents learning.
+    no_decay_names = {"bias", "cls_token", "dist_token", "pos_embed"}
+    decay_params, no_decay_params = [], []
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            continue
+        if param.ndim == 1 or any(nd in name for nd in no_decay_names):
+            no_decay_params.append(param)
+        else:
+            decay_params.append(param)
     optimizer = torch.optim.AdamW(
-        model.parameters(), lr=args.lr, weight_decay=args.weight_decay
+        [
+            {"params": decay_params,    "weight_decay": args.weight_decay},
+            {"params": no_decay_params, "weight_decay": 0.0},
+        ],
+        lr=args.lr,
     )
     scheduler = CosineWarmupScheduler(
         optimizer, warmup_epochs=args.warmup_epochs,
