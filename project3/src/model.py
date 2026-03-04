@@ -1,7 +1,7 @@
 """
 Architecture: DeiT-tiny
-  depth=12, dim=192, heads=3, patch_size=16, img_size=128
-  -> N = (128/16)^2 = 64 patch tokens
+  depth=12, dim=192, heads=3, patch_size=8, img_size=64
+  -> N = (64/8)^2 = 64 patch tokens
 
 Optional extensions (controlled by constructor flags):
   use_spt  — Shifted Patch Tokenization: increases input receptive field at embedding time
@@ -276,8 +276,8 @@ class TransformerBlock(nn.Module):
 class VisionTransformer(nn.Module):
     """DeiT-style Vision Transformer.
 
-    Default config matches DeiT-tiny adapted for 128x 128 input:
-      depth=12, dim=192, heads=3, patch_size=16
+    Default config matches DeiT-tiny adapted for 64x64 input:
+      depth=12, dim=192, heads=3, patch_size=8
       -> 64 patch tokens per image
 
     Optional extensions:
@@ -288,8 +288,8 @@ class VisionTransformer(nn.Module):
 
     def __init__(
         self,
-        img_size: int = 128,
-        patch_size: int = 16,
+        img_size: int = 64,
+        patch_size: int = 8,
         num_classes: int = 10,
         dim: int = 192,
         depth: int = 12,
@@ -410,8 +410,8 @@ class VisionTransformer(nn.Module):
 # ---------------------------------------------------------------------------
 
 def build_model(
-    img_size: int = 128,
-    patch_size: int = 16,
+    img_size: int = 64,
+    patch_size: int = 8,
     num_classes: int = 10,
     dim: int = 192,
     depth: int = 12,
@@ -450,7 +450,7 @@ if __name__ == "__main__":
         m = build_model(use_spt=spt, use_lsa=lsa, use_dist_token=dist)
         n = count_parameters(m)
         print(f"{tag}: {n:,} params ({n/1e6:.2f}M)")
-        x = torch.randn(2, 3, 128, 128)
+        x = torch.randn(2, 3, 64, 64)
         out = m(x)
         print(f"  inference output: {out.shape}")
         cls_out, dist_out = m.forward_train(x)
