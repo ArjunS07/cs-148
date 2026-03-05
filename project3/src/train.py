@@ -369,6 +369,10 @@ def train(args):
     print(f"ViT: {n_params:,} params ({n_params/1e6:.2f}M)", flush=True)
     model = model.to(device)
     model = torch.compile(model)
+    # Keep a reference to the underlying uncompiled module for state-dict I/O.
+    # torch.compile wraps the model and prefixes all keys with "_orig_mod.",
+    # which breaks load_state_dict on plain VisionTransformer instances.
+    _raw_model = getattr(model, "_orig_mod", model)
 
     # Resume from checkpoint if requested
     resume_ckpt = getattr(args, "resume_checkpoint", None)
@@ -538,7 +542,7 @@ def train(args):
             best_val_loss = vl
             patience_counter = 0
             torch.save(
-                {"epoch": epoch, "model_state_dict": model.state_dict(),
+                {"epoch": epoch, "model_state_dict": _raw_model.state_dict(),
                  "val_acc": va, "val_loss": vl,
                  "args": vars(args)},
                 os.path.join(args.save_dir, "best_model.pt"),
@@ -549,7 +553,7 @@ def train(args):
 
         if epoch % 20 == 0:
             torch.save(
-                {"epoch": epoch, "model_state_dict": model.state_dict(),
+                {"epoch": epoch, "model_state_dict": _raw_model.state_dict(),
                  "optimizer_state_dict": optimizer.state_dict(),
                  "scheduler_state_dict": scheduler.state_dict(),
                  "val_acc": va},
