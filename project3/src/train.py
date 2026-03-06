@@ -81,7 +81,7 @@ def load_teacher(teacher_path: str, device: torch.device) -> nn.Module:
 # ---------------------------------------------------------------------------
 
 class CosineWarmupScheduler(torch.optim.lr_scheduler._LRScheduler):
-    def __init__(self, optimizer, warmup_epochs: int, total_epochs: int, min_lr: float = 1e-6):
+    def __init__(self, optimizer, warmup_epochs: int, total_epochs: int, min_lr: float = 1e-5):
         self.warmup_epochs = warmup_epochs
         self.total_epochs = total_epochs
         self.min_lr = min_lr
@@ -409,7 +409,7 @@ def train(args):
     )
     scheduler = CosineWarmupScheduler(
         optimizer, warmup_epochs=args.warmup_epochs,
-        total_epochs=args.epochs, min_lr=1e-6,
+        total_epochs=args.epochs, min_lr=1e-5,
     )
 
     os.makedirs(args.save_dir, exist_ok=True)
