@@ -65,10 +65,6 @@ class PatchEmbedding(nn.Module):
         return x
 
 
-# ---------------------------------------------------------------------------
-# Shifted Patch Tokenization (SPT)
-# ---------------------------------------------------------------------------
-
 class ShiftedPatchTokenization(nn.Module):
     """SPT from https://arxiv.org/abs/2112.13492
 
@@ -117,9 +113,9 @@ class ShiftedPatchTokenization(nn.Module):
         # Four diagonal shifts: up-left, up-right, down-left, down-right
         shifts = [
             self._shift_image(x, -s, -s),
-            self._shift_image(x, -s, +s),
-            self._shift_image(x, +s, -s),
-            self._shift_image(x, +s, +s),
+            self._shift_image(x, -s, s),
+            self._shift_image(x, s, -s),
+            self._shift_image(x, s, s),
         ]
         x_cat = torch.cat([x] + shifts, dim=1)   # (B, 15, H, W)
 
@@ -314,8 +310,8 @@ class VisionTransformer(nn.Module):
 
         # --- Learnable tokens ---
         self.cls_token = nn.Parameter(torch.zeros(1, 1, dim))
-        if use_dist_token:
-            self.dist_token = nn.Parameter(torch.zeros(1, 1, dim))
+        # Always define dist_token for TorchScript compatibility; only trained when use_dist_token=True
+        self.dist_token = nn.Parameter(torch.zeros(1, 1, dim), requires_grad=use_dist_token)
 
         # Positional embedding covers: [CLS] (+ [DIST]) + N patch tokens
         n_tokens = n_patches + 1 + (1 if use_dist_token else 0)
@@ -339,8 +335,8 @@ class VisionTransformer(nn.Module):
 
         # --- Classification head(s) ---
         self.head = nn.Linear(dim, num_classes)
-        if use_dist_token:
-            self.dist_head = nn.Linear(dim, num_classes)
+        # Always define dist_head for TorchScript compatibility
+        self.dist_head = nn.Linear(dim, num_classes)
 
         self._init_weights()
 
@@ -390,6 +386,7 @@ class VisionTransformer(nn.Module):
             return (cls_out + dist_out) / 2.0
         return cls_out
 
+    @torch.jit.ignore
     def forward_train(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor | None]:
         """Training forward. Returns (cls_logits, dist_logits).
 
@@ -444,10 +441,11 @@ def count_parameters(model: nn.Module) -> int:
 
 
 if __name__ == "__main__":
-    for spt, lsa, dist in [(False, False, False), (True, False, False),
-                            (False, True, False), (True, True, True)]:
-        tag = f"spt={spt} lsa={lsa} dist={dist}"
-        m = build_model(use_spt=spt, use_lsa=lsa, use_dist_token=dist)
+    for spt, lsa in [(False, False), (True, False),
+                            (False, True), (True, True)]:
+        tag = f"spt={spt} lsa={lsa}"
+        m = build_model(use_spt=spt, use_lsa=lsa, use_dist_token=False)
+        print(m)
         n = count_parameters(m)
         print(f"{tag}: {n:,} params ({n/1e6:.2f}M)")
         x = torch.randn(2, 3, 128, 128)

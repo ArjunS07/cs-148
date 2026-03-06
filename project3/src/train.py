@@ -214,19 +214,6 @@ def compute_distillation_loss(
     tau: float,
     lambda_dist: float,
 ) -> torch.Tensor:
-    """Compute the total training loss depending on distillation mode.
-
-    distillation in {"none", "soft", "hard", "hard-dist"}
-
-    Soft distillation (Hinton et al. 2015 / DeiT eq. 1):
-      L = (1-λ) * CE(student, y) + λ * τ² * KL(softmax(student/τ) || softmax(teacher/τ))
-
-    Hard distillation (DeiT eq. 2):
-      L = 0.5 * CE(student, y) + 0.5 * CE(student, argmax(teacher))
-
-    Hard distillation with distillation token (DeiT eq. 3):
-      L = 0.5 * CE(cls_head, y) + 0.5 * CE(dist_head, argmax(teacher))
-    """
     if distillation == "none":
         return F.cross_entropy(cls_logits, labels)
 
@@ -379,7 +366,7 @@ def train(args):
     _resume_data = None
     if resume_ckpt and os.path.exists(resume_ckpt):
         _resume_data = torch.load(resume_ckpt, map_location="cpu", weights_only=False)
-        model.load_state_dict(_resume_data["model_state_dict"])
+        _raw_model.load_state_dict(_resume_data["model_state_dict"])
         print(f"Resumed model weights from {resume_ckpt}", flush=True)
 
     # Teacher
@@ -409,7 +396,7 @@ def train(args):
     )
     scheduler = CosineWarmupScheduler(
         optimizer, warmup_epochs=args.warmup_epochs,
-        total_epochs=args.epochs, min_lr=1e-5,
+        total_epochs=args.epochs, min_lr=args.min_lr,
     )
 
     os.makedirs(args.save_dir, exist_ok=True)
@@ -481,8 +468,12 @@ def train(args):
     best_val_acc = _resume_data["val_acc"] if _resume_data and "val_acc" in _resume_data else 0.0
     best_val_loss = float("inf")
     patience_counter = 0
+    start_epoch = 0
+    if _resume_data and "epoch" in _resume_data and "optimizer_state_dict" in _resume_data:
+        start_epoch = _resume_data["epoch"] + 1
+        print(f"Resuming from epoch {start_epoch}", flush=True)
 
-    for epoch in range(args.epochs):
+    for epoch in range(start_epoch, args.epochs):
         epoch_start = time.time()
         train_sampler.set_epoch(epoch)
 
@@ -566,6 +557,15 @@ def train(args):
         if args.patience > 0 and patience_counter >= args.patience:
             print(f"\nEarly stopping at epoch {epoch} (patience={args.patience})", flush=True)
             break
+
+    # Save final checkpoint so resume always has a complete state
+    torch.save(
+        {"epoch": epoch, "model_state_dict": _raw_model.state_dict(),
+         "optimizer_state_dict": optimizer.state_dict(),
+         "scheduler_state_dict": scheduler.state_dict(),
+         "val_acc": best_val_acc},
+        os.path.join(args.save_dir, "latest_checkpoint.pt"),
+    )
 
     print(f"\nTraining complete. Best val_acc={best_val_acc:.4f}", flush=True)
 
@@ -659,6 +659,7 @@ def main():
     parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=3e-4)
+    parser.add_argument("--min-lr", type=float, default=1e-5)
     parser.add_argument("--weight-decay", type=float, default=0.05)
     parser.add_argument("--warmup-epochs", type=int, default=5)
     parser.add_argument("--drop-path-rate", type=float, default=0.1)

@@ -94,9 +94,7 @@ def load_pipeline(
     use_dist_token: bool = False,
     device: str = "cpu",
 ) -> DigitClassifierPipeline:
-    model = build_model(use_spt=use_spt, use_lsa=use_lsa, use_dist_token=use_dist_token)
     ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
-    model.load_state_dict(ckpt["model_state_dict"])
 
     # Recover SPT/LSA/dist flags from saved args if available
     saved_args = ckpt.get("args", {})
@@ -105,9 +103,11 @@ def load_pipeline(
         use_lsa = saved_args.get("use_lsa", use_lsa)
         dist_mode = saved_args.get("distillation", "none")
         use_dist_token = (dist_mode == "hard-dist")
-        # Rebuild model with correct flags if they differ
-        model = build_model(use_spt=use_spt, use_lsa=use_lsa, use_dist_token=use_dist_token)
-        model.load_state_dict(ckpt["model_state_dict"])
+
+    model = build_model(use_spt=use_spt, use_lsa=use_lsa, use_dist_token=use_dist_token)
+    # strict=False: dist_token/dist_head are always defined in model for TorchScript
+    # but may not be present in checkpoints trained without use_dist_token
+    model.load_state_dict(ckpt["model_state_dict"], strict=False)
 
     pipeline = DigitClassifierPipeline(
         model=model,
@@ -145,8 +145,8 @@ def main():
     parser.add_argument("--push", action="store_true")
     parser.add_argument("--username", type=str, default=USERNAME)
     parser.add_argument("--token", type=str, default="")
-    parser.add_argument("--use-spt", action="store_true", default=False)
-    parser.add_argument("--use-lsa", action="store_true", default=False)
+    parser.add_argument("--use-spt", action="store_true", default=True)
+    parser.add_argument("--use-lsa", action="store_true", default=True)
     parser.add_argument("--use-dist-token", action="store_true", default=False)
     args = parser.parse_args()
 
