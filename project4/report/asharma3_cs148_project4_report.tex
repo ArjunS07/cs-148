@@ -77,6 +77,8 @@
 
 \maketitle
 
+\textit{My code for this project is visible at \url{https://github.com/ArjunS07/cs-148/project4}.}
+
 
 \section{CLIP zero-shot run}
 
@@ -176,6 +178,8 @@ DINO seems to perform better in attending to salient local structure in a noisy 
 We can link these to the original training objectives. CLIP is trained via image-text contrastive learning only so it is trained to emphasize global semantic structure corresponding to the captions, such that it works well on clean digits when the overall shape aligns well with semantic concepts but fails with structurally unusual cases. DINO, in contrast, is trained with multi-view augmentations such that it is sensitive to local geometric features and relatively invariant to distortions, such that it succeeds on cluttered digits by focusing on local digit structure. However, this structural bias likely causes it to fail when particular parts of the image produce features corresponding to other digits. 
 
 \section{Autorgressive Qwen VLM}
+
+My code for this portion is available at \url{https://colab.research.google.com/drive/1_C9SqGFbcU8svi_EDTGZTWOh_S3XeV5X?usp=sharing}
 
 \textbf{Qwen model}.
 
