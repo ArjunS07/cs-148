@@ -1,0 +1,229 @@
+\documentclass{article}
+\usepackage[a4paper, margin=0.5in]{geometry}
+
+% Document Information
+\title{CS 148a Problem Set 4}
+\date{}
+
+% ================ Core Packages ================
+% Math and Symbol Packages
+\usepackage{amsmath, amsfonts, amssymb, amstext, amscd, amsthm}
+\usepackage{centernot}
+\allowdisplaybreaks
+% Document Structure and Formatting
+\usepackage{bookmark}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{blindtext}
+\usepackage{subfiles}
+\usepackage{xparse}
+\usepackage[skip=6pt plus1pt, indent=0pt]{parskip}
+\usepackage{pdfpages}
+\usepackage{float}
+
+% ================ Theorem Environments ================
+% Color and Box Packages
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\tcbuselibrary{theorems}
+\usepackage{mdframed}
+\usepackage{environ}
+
+% Color Definitions
+\definecolor{definitiongray}{RGB}{240,240,240}
+\definecolor{definitionborder}{RGB}{120,120,120}
+\definecolor{resultblue}{RGB}{240,245,255}
+\definecolor{resultborder}{RGB}{68,138,255}
+\definecolor{theoremred}{RGB}{255,240,240}
+\definecolor{theoremborder}{RGB}{255,102,102}
+
+% Box Styling
+\tcbset{
+    enhanced,
+    sharp corners,
+    boxrule=0.4pt,
+    top=8pt,
+    bottom=8pt,
+    left=8pt,
+    right=8pt,
+    fonttitle=\bfseries,
+    coltitle=black,
+    colback=white,
+    colframe=black,
+    attach boxed title to top left={xshift=0.5cm, yshift*=-\tcboxedtitleheight/2},
+    boxed title style={
+        sharp corners,
+        size=small,
+        colback=white,
+        colframe=black
+    }
+}
+
+% Theorem-like Environments
+% Create theorem counter
+\newcounter{theorem}[section]
+\renewcommand{\thetheorem}{\thesection.\arabic{theorem}}
+
+% Box Definitions with fixed numbering
+\newtcolorbox{definitionbox}[2][]{
+    title={Definition \thetheorem: #2},
+    colback=definitiongray,
+    colframe=definitionborder,
+    #1
+}
+
+\newtcolorbox{resultbox}[2][]{
+    title={Result \thetheorem: #2},
+    colback=resultblue,
+    colframe=resultborder,
+    #1
+}
+
+\newtcolorbox{theorembox}[2][]{
+    title={Theorem \thetheorem: #2},
+    colback=theoremred,
+    colframe=theoremborder,
+    #1
+}
+
+% Environment Definitions
+\newenvironment{definition}[2][]
+    {\refstepcounter{theorem}\begin{definitionbox}[#1]{#2}}
+    {\end{definitionbox}}
+
+\newenvironment{result}[1][]
+    {\refstepcounter{theorem}\begin{resultbox}{#1}}
+    {\end{resultbox}}
+
+\newenvironment{theorem}[1][]
+    {\refstepcounter{theorem}\begin{theorembox}{#1}}
+    {\end{theorembox}}
+
+% Package for more flexible spacing control
+\usepackage{mdframed}
+\usepackage{environ}
+
+% Define a very light green for the background
+\definecolor{propositionbg}{RGB}{245, 250, 245}    % Very light green background
+\definecolor{propositionframe}{RGB}{220, 235, 220}  % Slightly darker green for frame
+
+% Style for practice propositions
+\mdfdefinestyle{propositionstyle}{
+    linewidth=0.5pt,
+    topline=true,
+    bottomline=true,
+    leftline=false,
+    rightline=false,
+    backgroundcolor=propositionbg,
+    linecolor=propositionframe,
+    innertopmargin=10pt,
+    innerbottommargin=10pt,
+    innerleftmargin=12pt,
+    innerrightmargin=12pt,
+    skipabove=1.2em,
+    skipbelow=1.2em
+}
+
+% Counter for propositions
+\newcounter{proposition}[section]
+\renewcommand{\theproposition}{\thesection.\arabic{proposition}}
+
+% New proposition environment
+\NewEnviron{proposition}[3]{
+    \refstepcounter{proposition}
+    \smallskip
+    \begin{mdframed}[style=propositionstyle]
+        \textbf{#1}. \textit{#2}
+    \vspace{-0.25cm}
+    \begin{proof}
+        #3
+    \end{proof}
+    \end{mdframed}
+}
+
+% ================ Custom Commands ================
+% Math Commands
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\cnot}{\centernot}
+\newcommand{\notimplies}{\cnot\implies}
+\newcommand{\llim}{\lim \limits}
+\newcommand{\fin}[2]{~\forall #1 \in #2}
+\newcommand{\st}{\text{ s.t. }}
+\newcommand{\spn}{\text{span}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\ev}{\mathbb{E}}
+\newcommand{\loss}{\mathcal{L}}
+\newenvironment{amatrix}[1]{%
+  \left(\begin{array}{@{}*{#1}{c}|c@{}}
+}{%
+  \end{array}\right)
+}
+
+% partial derivatives
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\pdd}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\pddm}[3]{\frac{\partial^2 #1}{\partial #2 \partial #3}}
+
+\newcommand{\argmin}{\arg\min}
+\newcommand{\argmax}{\arg\max}
+
+% ================ List Formatting ================
+\usepackage{enumitem}
+\renewcommand{\labelenumii}{\arabic{enumii}.}
+\renewcommand{\labelenumiii}{\arabic{enumiii}}
+
+% ================ Reference Formatting ================
+\newcommand{\resultautorefname}{result}
+\begin{document}
+\maketitle
+
+\newpage
+
+\section*{Question 1}
+\begin{itemize}
+    \item[(i)] Intersection area = $(10 - 5) \times (10 - 5) = 25$.
+
+    Union area = $(10 \times 10) + (10 \times 10) - 25 = 175$.
+
+    IOU = $\frac{25}{175} = 0.1428571429$.
+
+    \item[(ii)] An IoU of 0 signifies there is no intersection between the bounding boxes, i.e., they are completely dissimilar. An IoU of 1 means that the intersection area is equal to the union area, such that the bounding boxes are identical.
+\end{itemize}
+
+\newpage
+\section*{Queston 2}
+\begin{itemize}
+    \item[(c)]  If we care about reconstruction, autoencoders explicitly enforce a reconstruction objective, while the approach of SimCLR just tries to learn a meaningful latent representation for general downstream tasks. Therefore, for reconstruction, an autoencoder is better.
+    
+    If we want representations for more general downstream tasks like classification, segmentation, retrieval, etc., then the more general contrastive learning approach of SimCLR is better.
+
+    Both approaches are not affected by the availability of labels, but SimCLR exploits natural structure in the data better, for example, by utilizing the fact that we can generate augmentations of images as positive pairs for contrastive learning.
+\end{itemize}
+
+\newpage
+\section*{Question 3}
+\begin{enumerate}[label=\alph*]
+    \item It is sampled from a multivariate standard normal distribution
+    \item \begin{itemize}
+        \item[(i)] $q_\phi(z | x)$ represents the approximate posterior, which is given by our encoder network. $p_\theta (z | x)$ represents the true posterior of the latent variable, which is unknown and cannot be computed directly.
+        \item[(ii)] KL-divergence is non-negative, which means that minimizing KLD will bring $q_\phi$ closer to $p_\theta$ with a lower bound of zero on the optimization process.
+    \end{itemize}
+    \item The first term is formally called the reconstruction loss, and means that we want to maximize the true posterior probability of the observed sample $x$ given the latent $z$ over our distribution of latents $q_\phi(z)$. This encourages the VAE to accurately reconstruct the input data $x$ from the latents $z$, so we learn meaningful latent representations $z$.
+    
+    The second term is a prior-matching objective, and uses KL divergence to enforce that for all $x$ in our dataset, the latent $z$ conditionally predicted as $q_\phi(z | x)$ should be close to the prior $p_\theta(z)$. Without this term, the encoder could learn arbitrarily complex or disjoint distributions for different inputs, making it impossible to sample meaningful latent codes during generation. This makes the latent space well structured and practically makes it easy for us to sample new generated samples later.
+    \item \begin{align*}
+\nabla_\phi \mathbb{E}_{z \sim q_\phi} [\log p_\theta(x | z)] 
+&= \nabla_\phi \int q_\phi(z) \log p_\theta(x | z) \, dz \\
+&= \int \nabla_\phi q_\phi(z) \log p_\theta(x | z) \, dz \\
+&= \int \nabla_\phi q_\phi(z) \log p_\theta(x | z) \, dz
+\end{align*}
+But we cannot write this as an expectation again for Monte Carlo estimation since the $\phi$ parametrizes the distribution we're sampling from $q_\phi(z)$, and we want to differentiate with respect to $\phi$. 
+\end{enumerate}
+\end{document}
