@@ -113,7 +113,6 @@ def plot_samples(rows: list[dict], out_path: str):
 
     ax.set_xlabel(r"Training samples $N$")
     ax.set_ylabel(r"Val.\ error rate $(\log_{10})$")
-    ax.set_title(r"Scaling Law: Error vs.\ Sample Count")
     ax.legend(framealpha=0.9)
     sns.despine(ax=ax, left=False, bottom=False)
 
@@ -175,7 +174,6 @@ def plot_params(rows: list[dict], out_path: str):
 
     ax.set_xlabel(r"Parameter count $(\log_{10})$  [MLP head only for CLIP/DINO]")
     ax.set_ylabel(r"Val.\ error rate $(\log_{10})$")
-    ax.set_title(r"Scaling Law: Error vs.\ Model Size")
     ax.legend(framealpha=0.9)
     sns.despine(ax=ax, left=False, bottom=False)
 
